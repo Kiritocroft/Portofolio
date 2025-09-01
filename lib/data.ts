@@ -82,7 +82,6 @@ export const skillsData = [
   "Prisma",
   "MongoDB",
   "GraphQL",
-  "PostgreSQL",
   "Python",
   "Django",
   "Framer Motion",
