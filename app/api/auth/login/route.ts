@@ -8,8 +8,14 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { email, password } = body;
 
-  // Ganti dengan logika otentikasi database Anda
-  if (email === 'admin@gmail.com' && password === 'admin') {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !adminPassword) {
+    return new NextResponse(JSON.stringify({ success: false, message: 'Konfigurasi admin tidak lengkap' }), {
+      status: 500,
+    });
+  }
+  if (email === adminEmail && password === adminPassword) {
     // Kredensial valid, buat token
     const token = sign(
       { email },
