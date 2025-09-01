@@ -1,22 +1,34 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose';
 
-export function middleware(request: NextRequest) {
-  const isLoggedIn = request.cookies.get('isLoggedIn')?.value === 'true'
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-key');
 
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL('/login', request.url))
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const authToken = request.cookies.get('authToken')?.value;
+
+  let isAuthenticated = false;
+  if (authToken) {
+    try {
+      await jwtVerify(authToken, JWT_SECRET);
+      isAuthenticated = true;
+    } catch (err) {
+      isAuthenticated = false;
     }
   }
 
-  if (request.nextUrl.pathname.startsWith('/login')) {
-    if (isLoggedIn) {
-      return NextResponse.redirect(new URL('/admin', request.url))
-    }
+  // Jika sudah login dan mencoba mengakses /login, redirect ke /admin
+  if (isAuthenticated && pathname.startsWith('/login')) {
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
-  return NextResponse.next()
+  // Jika belum login dan mencoba mengakses /admin, redirect ke /login
+  if (!isAuthenticated && pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

@@ -8,17 +8,34 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Reset error on new submission
-    // Ganti dengan logika otentikasi Anda yang sebenarnya
-    if (password === 'admin' && email === 'admin@gmail.com') {
-      document.cookie = "isLoggedIn=true; path=/";
-      router.push('/admin');
-    } else {
-      setError('Email atau password salah.');
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        router.push('/admin');
+      } else {
+        setError(data.message || 'Terjadi kesalahan');
+      }
+    } catch (err) {
+      setError('Tidak dapat terhubung ke server.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,8 +92,9 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 text-gray-900 bg-white/80 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="masukkan email"
+              placeholder="admin@nabil.com"
               required
+              disabled={isLoading}
             />
           </motion.div>
           <motion.div variants={itemVariants}>
@@ -90,6 +108,7 @@ export default function LoginPage() {
               className="w-full px-4 py-2 text-gray-900 bg-white/80 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="admin"
               required
+              disabled={isLoading}
             />
           </motion.div>
           <motion.button
@@ -97,9 +116,10 @@ export default function LoginPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full flex items-center justify-center py-3 font-semibold text-white bg-purple-600 rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-300"
+            className="w-full flex items-center justify-center py-3 font-semibold text-white bg-purple-600 rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-300 disabled:bg-purple-400"
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? 'Loading...' : 'Login'}
           </motion.button>
         </form>
       </motion.div>
