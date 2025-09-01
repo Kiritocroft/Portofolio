@@ -2,7 +2,7 @@ import { sign } from 'jsonwebtoken';
 import { serialize } from 'cookie';
 import { NextResponse } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-default-secret-key'; // Ganti dengan secret key Anda dari .env
+const JWT_SECRET = process.env.JWT_SECRET || 'smktelkom';
 
 export async function POST(req: Request) {
   const body = await req.json();

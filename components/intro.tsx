@@ -31,7 +31,7 @@ export default function Intro() {
             }}
           >
             <Image
-              src="/nabil.jpg"
+              src="/pp.jpg"
               alt="Muhammad Nabil Athaillah portrait"
               width="192"
               height="192"
