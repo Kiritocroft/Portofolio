@@ -92,7 +92,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 text-gray-900 bg-white/80 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="admin@nabil.com"
+              placeholder="Masukkan Gmail"
               required
               disabled={isLoading}
             />
