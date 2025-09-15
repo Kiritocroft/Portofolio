@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,20 +18,16 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
+      if (result?.error) {
+        setError('Email atau password salah.');
+      } else if (result?.ok) {
         router.push('/admin');
-      } else {
-        setError(data.message || 'Terjadi kesalahan');
       }
     } catch (err) {
       setError('Tidak dapat terhubung ke server.');

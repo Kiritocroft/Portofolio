@@ -7,9 +7,10 @@ const nextConfig = {
         hostname: "images.unsplash.com",
       },
     ],
+    qualities: [75, 85, 95],
   },
   experimental: {
-    serverActions: true,
+    serverActions: { bodySizeLimit: '1mb' },
   },
 };
 

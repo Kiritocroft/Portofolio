@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { signOut } from 'next-auth/react';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -10,10 +11,9 @@ export default function AdminPage() {
   const handleLogout = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await signOut({ callbackUrl: '/login', redirect: true });
     } catch (error) {
       console.error('Logout failed:', error);
-    } finally {
       router.push('/login');
     }
   };

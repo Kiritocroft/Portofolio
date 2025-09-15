@@ -1,22 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-key');
+import { getToken } from 'next-auth/jwt'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const authToken = request.cookies.get('authToken')?.value;
 
-  let isAuthenticated = false;
-  if (authToken) {
-    try {
-      await jwtVerify(authToken, JWT_SECRET);
-      isAuthenticated = true;
-    } catch (err) {
-      isAuthenticated = false;
-    }
-  }
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const isAuthenticated = !!token;
 
   // Jika sudah login dan mencoba mengakses /login, redirect ke /admin
   if (isAuthenticated && pathname.startsWith('/login')) {
