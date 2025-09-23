@@ -2,7 +2,7 @@
 
 This is a fully functional, customizable personal portfolio website built with modern web technologies. It includes an admin panel to easily manage your profile information, projects, and other content.
 
-![Portfolio Preview](https://imgur.com/a/i2DOtYH#3qlqtB1) 
+![Portfolio Preview](https://i.imgur.com/3qlqtB1.png) 
 
 ## Features
 
