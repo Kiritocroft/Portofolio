@@ -32,7 +32,7 @@ Make sure you have the following software installed on your machine:
 ### Database Setup
 
 1. **Start your MySQL server:**
-   - If using XAMPP: Open XAMPP Control Panel and start the MySQL service
+   - If using XAMPP: Open XAMPP Control Panel and start the MySQL and Apache service
    - If using Laragon: Open Laragon and start all services
    - For standalone MySQL: Make sure the MySQL service is running
 
