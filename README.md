@@ -2,7 +2,7 @@
 
 This is a fully functional, customizable personal portfolio website built with modern web technologies. It includes an admin panel to easily manage your profile information, projects, and other content.
 
-![Portfolio Preview](https://imgur.com/a/i2DOtYH#3qlqtB1) <!-- Replace with a screenshot of your portfolio -->
+![Portfolio Preview](https://imgur.com/a/i2DOtYH#3qlqtB1) 
 
 ## Features
 
@@ -29,8 +29,8 @@ Make sure you have the following software installed on your machine:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/your-portfolio.git
-    cd your-portfolio
+    git clone https://github.com/Kiritocroft/Portofolio.git
+    cd Portofolio
     ```
 
 2.  **Install dependencies:**
