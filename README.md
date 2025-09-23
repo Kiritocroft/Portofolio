@@ -24,7 +24,22 @@ Make sure you have the following software installed on your machine:
 
 - [Node.js](https://nodejs.org/en/download/) (v18 or later recommended)
 - [npm](https://www.npmjs.com/get-npm) (usually comes with Node.js)
-- [MySQL](https://dev.mysql.com/downloads/installer/) (or any other SQL database compatible with Prisma)
+- **MySQL Database Server:**
+  - For Windows: Install [XAMPP](https://www.apachefriends.org/download.html) or [Laragon](https://laragon.org/download/index.html) which includes MySQL
+  - For Mac: Install [MAMP](https://www.mamp.info/en/downloads/) or use [Homebrew](https://brew.sh/) to install MySQL
+  - For Linux: Install MySQL server using your package manager (e.g., `sudo apt install mysql-server` for Ubuntu)
+
+### Database Setup
+
+1. **Start your MySQL server:**
+   - If using XAMPP: Open XAMPP Control Panel and start the MySQL service
+   - If using Laragon: Open Laragon and start all services
+   - For standalone MySQL: Make sure the MySQL service is running
+
+2. **Create a new database:**
+   - Open phpMyAdmin (included with XAMPP/Laragon) in your browser (usually at http://localhost/phpmyadmin)
+   - Create a new database named `portofolio_db` (or any name you prefer)
+   - Make note of your MySQL username and password (default for XAMPP is username: `root` with no password)
 
 ### Installation
 
@@ -50,13 +65,13 @@ Make sure you have the following software installed on your machine:
 
     - `DATABASE_URL`: Your MySQL database connection string. It should look like this:
       `mysql://USER:PASSWORD@HOST:PORT/DATABASE`
-      For a local setup, it might be `mysql://root:password@localhost:3306/myportfolio`.
+      For a local XAMPP setup, it would typically be `mysql://root:@localhost:3306/portofolio_db`.
 
     - `RESEND_API_KEY`: Your API key from [Resend](https://resend.com/) for the contact form.
 
     - `JWT_SECRET`: A long, random string to secure the admin authentication. You can generate one [here](https://generate-secret.now.sh/32).
 
-    - `ADMIN_EMAIL` and `ADMIN_PASSWORD`: The credentials you will use to log in to the admin panel.
+    - `ADMIN_EMAIL` and `ADMIN_PASSWORD`: The credentials you will use to log in to the admin panel. Set these to your preferred email and a secure password.
 
 2.  **Set up the database:**
     Run the following command to apply the database schema and create the necessary tables:
@@ -121,3 +136,15 @@ If you want to make more significant changes, here are some key files to look at
 The easiest way to deploy your Next.js application is with [Vercel](https://vercel.com/). It's a platform built by the creators of Next.js and offers a seamless deployment experience.
 
 For a step-by-step guide, check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment).
+
+## Troubleshooting
+
+### Database Connection Issues
+- Make sure your MySQL server is running
+- Check that the database name in your `DATABASE_URL` matches the one you created
+- For XAMPP users: The default username is `root` with no password
+- If you're using a password, make sure it's correctly included in the connection string
+
+### Admin Login Issues
+- Ensure you've set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
+- If you can't log in, check the database to verify the admin credentials were properly seeded
