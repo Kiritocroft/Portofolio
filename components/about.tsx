@@ -17,32 +17,30 @@ export default function About() {
       transition={{ delay: 0.175 }}
       id="about"
     >
-      <SectionHeading>About me</SectionHeading>
+      <SectionHeading>Tentang saya</SectionHeading>
       <p className="mb-3">
-        Saya adalah siswa dari{" "}
-        <span className="font-medium">SMK Telkom Makassar</span>, yang memiliki
-        minat besar dalam dunia pemrograman. Saya mengambil jurusan{" "}
-        <span className="font-medium">Rekayasa Perangkat Lunak</span>.{" "}
-        <span className="italic">Bagian favorit saya dalam pemrograman</span> adalah
-        aspek pemecahan masalah. Saya sangat <span className="underline">suka</span>{" "}
-        ketika berhasil menemukan solusi dari sebuah masalah. Teknologi utama yang saya
-        pelajari adalah{" "}
+        Saya adalah seorang siswa dari{" "}
+        <span className="font-medium">SMK Telkom Makassar</span> yang memiliki
+        passion besar dalam dunia teknologi dan pemrograman. Saya mengambil jurusan{" "}
+        <span className="font-medium">Rekayasa Perangkat Lunak (RPL)</span> dan{" "}
+        <span className="italic">yang paling saya sukai dari coding</span> adalah
+        proses memecahkan masalah yang kompleks. Saya merasa <span className="underline">tertantang</span>{" "}
+        ketika berhasil menemukan solusi kreatif untuk berbagai masalah. Teknologi yang saya
+        kuasai meliputi{" "}
         <span className="font-medium">
-          React, Next.js, Node.js, dan MongoDB
+          React, Next.js, Node.js, TypeScript, dan MongoDB
         </span>
-        . Saya juga familiar dengan TypeScript dan Prisma. Saya selalu bersemangat untuk
-        mempelajari teknologi-teknologi baru. Saat ini saya sedang mencari{" "}
-        <span className="font-medium">kesempatan magang</span> sebagai pengembang
-        perangkat lunak.
+        . Saya juga familiar dengan Prisma dan berbagai framework modern lainnya. Saya selalu{" "}
+        <span className="font-medium">antusias mempelajari teknologi baru</span> dan saat ini sedang mencari{" "}
+        <span className="font-medium">kesempatan magang</span> sebagai software developer.
       </p>
 
       <p>
-        <span className="italic">Di luar kegiatan coding</span>, saya suka bermain
-        game, menonton film, dan bermain dengan teman-teman. Saya juga senang{" "}
-        <span className="font-medium">mempelajari hal-hal baru</span>. Saat ini
-        saya sedang mempelajari{" "}
-        <span className="font-medium">sejarah dan teknologi terbaru</span>. Saya
-        juga sedang belajar bermain gitar.
+        <span className="italic">Selain coding</span>, saya menikmati bermain
+        game online, menonton anime, dan menghabiskan waktu dengan teman-teman. Saya juga suka{" "}
+        <span className="font-medium">mempelajari hal-hal baru</span> di luar teknologi, seperti{" "}
+        <span className="font-medium"> musik, dan gitar</span>. Saat ini
+        saya sedang belajar bermain gitar.
       </p>
     </motion.section>
   );
