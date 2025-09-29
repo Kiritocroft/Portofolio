@@ -25,13 +25,13 @@ export default function ThemeSwitch() {
   const getTooltipText = () => {
     switch (theme) {
       case "light":
-        return "Mode Terang";
+        return "Light Mode";
       case "dark":
-        return "Mode Gelap";
+        return "Dark Mode";
       case "system":
-        return "Ikuti Sistem";
+        return "Follow System";
       default:
-        return "Mode Terang";
+        return "Light Mode";
     }
   };
 

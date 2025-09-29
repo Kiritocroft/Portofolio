@@ -54,3 +54,29 @@ model ProfileImage {
   data      Bytes    // Menyimpan data gambar biner
   createdAt DateTime @default(now())
 }
+
+model About {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Skill {
+  id        String   @id @default(cuid())
+  name      String
+  order     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  title       String
+  location    String
+  description String   @db.Text
+  date        String
+  icon        String   @default("CgWorkAlt") // Icon name from react-icons
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

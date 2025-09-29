@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SectionHeading from "./section-heading";
-import { skillsData } from "@/lib/data";
 import { useSectionInView } from "@/lib/hooks";
 import { motion } from "framer-motion";
 
@@ -24,8 +23,26 @@ const fadeInAnimationVariants = {
   }),
 };
 
+interface SkillItem { id: string; name: string; order?: number | null }
+
 export default function Skills() {
   const { ref } = useSectionInView("Skills");
+  const [skills, setSkills] = useState<SkillItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/skills", { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch skills");
+        const data = await res.json();
+        setSkills(data);
+      } catch (err: any) {
+        setError(err.message || "Failed to load skills");
+      }
+    };
+    load();
+  }, []);
 
   return (
     <section
@@ -39,10 +56,11 @@ export default function Skills() {
       </div>
 
       <SectionHeading>My skills</SectionHeading>
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <ul className="mt-6 flex flex-wrap justify-center gap-3 text-base text-gray-800 dark:text-gray-100">
-        {skillsData.map((skill, index) => (
+        {skills.map((skill, index) => (
           <motion.li
-            key={index}
+            key={skill.id}
             variants={fadeInAnimationVariants}
             initial="initial"
             whileInView="animate"
@@ -54,7 +72,7 @@ export default function Skills() {
             {/* gradient border accent */}
             <span className="pointer-events-none absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-fuchsia-500/0 via-purple-500/0 to-indigo-500/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 dark:from-fuchsia-400 dark:via-purple-400 dark:to-indigo-400">
-              {skill}
+              {skill.name}
             </span>
           </motion.li>
         ))}
