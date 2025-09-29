@@ -1,150 +1,225 @@
 # Personal Portfolio Website
 
-This is a fully functional, customizable personal portfolio website built with modern web technologies. It includes an admin panel to easily manage your profile information, projects, and other content.
+A fully dynamic portfolio website with admin panel to manage all homepage content. Built with modern technologies and beginner-friendly.
 
 ![Portfolio Preview](https://i.imgur.com/IHmtXN7.png)
 ![Portfolio Preview](https://i.imgur.com/KEMBuTw.png)
 
-## Features
+## ✨ Key Features
 
-- **Modern Tech Stack:** Built with Next.js, React, and Tailwind CSS.
-- **Database:** Uses Prisma as the ORM for easy database management (MySQL).
-- **Admin Panel:** A secure admin panel to update your profile, projects, and other data without touching the code.
-- **Email Service:** Integrated with Resend to handle contact form submissions.
-- **Animations:** Smooth animations with Framer Motion.
-- **Responsive Design:** Looks great on all devices, from mobile phones to desktops.
+- **🎨 Fully Dynamic Content:** All homepage content can be edited directly from admin panel
+- **🔐 Admin Panel:** Secure admin panel to manage profile, projects, about, skills, and experience
+- **💾 Database Integration:** Uses MySQL (XAMPP) to store all data
+- **📱 Responsive Design:** Perfect display on all devices (mobile, tablet, desktop)
+- **🎭 Animations:** Smooth animations with Framer Motion
+- **📧 Contact Form:** Contact form integrated with email service
+- **🌙 Dark/Light Mode:** Theme switcher for dark and light modes
 
-## Getting Started
+## 🚀 Quick Start for Beginners
 
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+### 1. Prerequisites (Required Software)
 
-### Prerequisites
+**Must install:**
+- [Node.js](https://nodejs.org/en/download/) (version 18 or newer)
+- [XAMPP](https://www.apachefriends.org/download.html) for Windows (includes MySQL + phpMyAdmin)
 
-Make sure you have the following software installed on your machine:
+**Alternatives for other OS:**
+- Mac: [MAMP](https://www.mamp.info/en/downloads/) or [Homebrew](https://brew.sh/)
+- Linux: `sudo apt install mysql-server nodejs npm`
 
-- [Node.js](https://nodejs.org/en/download/) (v18 or later recommended)
-- [npm](https://www.npmjs.com/get-npm) (usually comes with Node.js)
-- **MySQL Database Server:**
-  - For Windows: Install [XAMPP](https://www.apachefriends.org/download.html) or [Laragon](https://laragon.org/download/index.html) which includes MySQL
-  - For Mac: Install [MAMP](https://www.mamp.info/en/downloads/) or use [Homebrew](https://brew.sh/) to install MySQL
-  - For Linux: Install MySQL server using your package manager (e.g., `sudo apt install mysql-server` for Ubuntu)
+### 2. Database Setup (XAMPP)
 
-### Database Setup
+1. **Start XAMPP:**
+   - Open XAMPP Control Panel
+   - Click "Start" on Apache and MySQL
+   - Make sure both services are green
 
-1. **Start your MySQL server:**
-   - If using XAMPP: Open XAMPP Control Panel and start the MySQL and Apache service
-   - If using Laragon: Open Laragon and start all services
-   - For standalone MySQL: Make sure the MySQL service is running
+2. **Create Database:**
+   - Open browser, visit http://localhost/phpmyadmin
+   - Click "New" in left sidebar
+   - Enter database name: `portofolio_db`
+   - Click "Create"
 
-2. **Create a new database:**
-   - Open phpMyAdmin (included with XAMPP/Laragon) in your browser (usually at http://localhost/phpmyadmin)
-   - Create a new database named `portofolio_db` (or any name you prefer)
-   - Make note of your MySQL username and password (default for XAMPP is username: `root` with no password)
+### 3. Installation & Setup
 
-### Installation
+1. **Clone repository:**
+   ```bash
+   git clone https://github.com/Kiritocroft/Portofolio.git
+   cd Portofolio
+   ```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Kiritocroft/Portofolio.git
-    cd Portofolio
-    ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+3. **Setup environment variables:**
+   - Copy `.env.example` file to `.env`
+   - Edit `.env` file and fill in:
+   ```env
+   # Database (adjust to your XAMPP setup)
+   DATABASE_URL="mysql://root:@localhost:3306/portofolio_db"
+   
+   # Admin credentials (change to your email and password)
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_PASSWORD=your_secure_password
+   
+   # Security (generate random strings)
+   JWT_SECRET=your_jwt_secret_here
+   NEXTAUTH_SECRET=your_nextauth_secret_here
+   NEXTAUTH_URL=http://localhost:3000
+   
+   # Email API (optional, for contact form)
+   RESEND_API_KEY=your_resend_api_key_here
+   ```
 
-### Configuration
+4. **Setup database schema:**
+   ```bash
+   npx prisma db push
+   ```
 
-1.  **Set up environment variables:**
-    Create a new file named `.env` in the root of your project by copying the example file:
-    ```bash
-    cp .env.example .env
-    ```
-    Now, open the `.env` file and fill in the required values:
+5. **Seed initial data:**
+   ```bash
+   npx prisma db seed
+   ```
 
-    - `DATABASE_URL`: Your MySQL database connection string. It should look like this:
-      `mysql://USER:PASSWORD@HOST:PORT/DATABASE`
-      For a local XAMPP setup, it would typically be `mysql://root:@localhost:3306/portofolio_db`.
+6. **Run the application:**
+   ```bash
+   npm run dev
+   ```
+   Open http://localhost:3000 in your browser
 
-    - `RESEND_API_KEY`: Your API key from [Resend](https://resend.com/) for the contact form.
+## 🎛️ How to Use Admin Panel
 
-    - `JWT_SECRET`: A long, random string to secure the admin authentication. You can generate one [here](https://generate-secret.now.sh/32).
+### Login to Admin
+1. Go to http://localhost:3000/login
+2. Enter `ADMIN_EMAIL` and `ADMIN_PASSWORD` from your `.env` file
+3. Click "Login"
 
-    - `ADMIN_EMAIL` and `ADMIN_PASSWORD`: The credentials you will use to log in to the admin panel. Set these to your preferred email and a secure password.
+### Managing Content in Admin Panel
 
-2.  **Set up the database:**
-    Run the following command to apply the database schema and create the necessary tables:
-    ```bash
-    npx prisma migrate dev
-    ```
+After login, you'll access http://localhost:3000/admin with features:
 
-3.  **Seed the database:**
-    This command will populate your database with some initial placeholder data. You can customize this data in the `prisma/seed.ts` file.
-    ```bash
-    npm run prisma:seed
-    ```
+#### 📝 Profile Management
+- **Edit name, title, description** displayed in homepage Intro section
+- **Upload profile photo** or use default photo
+- Click "Save Changes" to save to database
 
-### Running the Application
+#### 📂 Projects Management
+- **Add new project:** Fill title, description, tags (comma separated), image URL
+- **Edit project:** Click "Edit" button on existing project
+- **Delete project:** Click "Delete" button
+- All changes instantly appear in "My Projects" homepage section
 
-1.  **Start the development server:**
-    ```bash
-    npm run dev
-    ```
-    Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the application.
+#### 📖 About Management
+- **Edit "About me" content** with large textarea
+- Supports multiline text
+- Click "Save About" to save
 
-2.  **Build for production:**
-    To create a production-ready build, run:
-    ```bash
-    npm run build
-    ```
-    And to start the production server:
-    ```bash
-    npm run start
-    ```
+#### 🛠️ Skills Management
+- **Add new skill:** Enter skill name and order (optional)
+- **Delete skill:** Click "Delete" button on existing skill
+- Skills appear in "My Skills" homepage section with animations
 
-## Customization
+#### 💼 Experience Management
+- **Add new experience:** Fill title, location, description, date
+- **Choose icon:** Dropdown with Work, React, or Graduation options
+- **Delete experience:** Click "Delete" button
+- Experience appears in "My Experience" timeline on homepage
 
-### Admin Panel
+### Tips for Beginners
 
-The easiest way to customize your portfolio content is through the admin panel.
+1. **Start with Profile:** Edit name and description first
+2. **Add Projects:** Showcase your best projects
+3. **Update About:** Tell your story
+4. **Fill Skills:** List technologies you know
+5. **Add Experience:** Education and work history
 
-1.  Navigate to `/admin` (e.g., `http://localhost:3000/admin`).
-2.  Log in with the `ADMIN_EMAIL` and `ADMIN_PASSWORD` you set in your `.env` file.
-3.  From here, you can update your profile information, add or remove projects, and change other settings.
+## 🔧 Troubleshooting
 
-### Manual Customization
+### Database Issues
+**Error: "Failed to connect to database"**
+- Make sure XAMPP MySQL service is running (green in Control Panel)
+- Check database name in phpMyAdmin matches your `.env`
+- For XAMPP default: username=`root`, password=empty
 
-If you want to make more significant changes, here are some key files to look at:
-
-- **`prisma/seed.ts`**: Modify this file to change the initial data that populates your database.
-- **`public/`**: This directory contains static assets like your profile picture (`pp.jpg`) and CV. Replace them with your own files.
-- **`app/globals.css`**: Here you can change the global styles, including the hexagon shape and its animations.
-- **`components/`**: This directory contains all the React components. You can modify them to change the layout or add new sections.
-
-## Project Structure
-
-- **`/app`**: Contains the main pages of the application, including the admin panel and API routes.
-- **`/components`**: Reusable React components used throughout the site.
-- **`/context`**: React context providers for managing global state (like the active section and theme).
-- **`/lib`**: Utility functions, hooks, and Prisma client setup.
-- **`/prisma`**: Contains your database schema (`schema.prisma`) and seeding script (`seed.ts`).
-- **`/public`**: Static assets like images and documents.
-
-## Deployment
-
-The easiest way to deploy your Next.js application is with [Vercel](https://vercel.com/). It's a platform built by the creators of Next.js and offers a seamless deployment experience.
-
-For a step-by-step guide, check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment).
-
-## Troubleshooting
-
-### Database Connection Issues
-- Make sure your MySQL server is running
-- Check that the database name in your `DATABASE_URL` matches the one you created
-- For XAMPP users: The default username is `root` with no password
-- If you're using a password, make sure it's correctly included in the connection string
+**Error: "Table doesn't exist"**
+```bash
+npx prisma db push
+npx prisma db seed
+```
 
 ### Admin Login Issues
-- Ensure you've set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file
-- If you can't log in, check the database to verify the admin credentials were properly seeded
+**Cannot login to admin**
+- Make sure `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set in `.env`
+- Run seeding again: `npx prisma db seed`
+- Check database in phpMyAdmin, `User` table should have admin data
+
+### Development Issues
+**Error: "Module not found"**
+```bash
+npm install
+```
+
+**Error: "Prisma Client not generated"**
+```bash
+npx prisma generate
+npm run dev
+```
+
+**Port 3000 already in use**
+```bash
+# Change port in package.json or kill process using port 3000
+npx kill-port 3000
+npm run dev
+```
+
+## 📁 Project Structure
+
+```
+├── app/
+│   ├── admin/          # Admin panel pages
+│   ├── api/            # API routes for CRUD operations
+│   ├── login/          # Admin login page
+│   └── page.tsx        # Main homepage
+├── components/         # React components (About, Skills, Projects, etc.)
+├── prisma/
+│   ├── schema.prisma   # Database schema
+│   └── seed.ts         # Initial database data
+├── public/             # Static files (images, CV, etc.)
+├── .env.example        # Environment variables template
+└── README.md           # This documentation
+```
+
+## 🌐 Deployment
+
+### Deploy to Vercel (Recommended)
+1. Push code to GitHub repository
+2. Connect repository to [Vercel](https://vercel.com/)
+3. Set environment variables in Vercel dashboard
+4. Auto-deploy on every push to main branch
+
+### Deploy to Other Hosting
+1. Build production: `npm run build`
+2. Upload `.next`, `public`, and other files
+3. Setup environment variables on hosting
+4. Ensure MySQL database is accessible from hosting
+
+## 📞 Support
+
+If you encounter issues:
+1. Check Troubleshooting section above
+2. Make sure all prerequisites are installed
+3. Check error logs in terminal when running `npm run dev`
+
+## 🎯 Next Steps
+
+After successful setup:
+1. Customize content through admin panel
+2. Replace profile photo and CV in `public/` folder
+3. Adjust colors and styling in `app/globals.css`
+4. Deploy to internet for public access
+
+---
+
+**Congratulations! Your portfolio is ready to use! 🎉**
