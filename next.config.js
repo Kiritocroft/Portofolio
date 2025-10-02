@@ -18,7 +18,7 @@ const nextConfig = {
     qualities: [75, 85, 95],
   },
   experimental: {
-    serverActions: { bodySizeLimit: '1mb' },
+    serverActions: { bodySizeLimit: '10mb' },
   },
   // Map gsap subpath imports to dist files to avoid resolution issues in Next.js
   webpack: (config) => {

@@ -71,6 +71,8 @@ export default function AdminPage() {
     imageUrl: "/pim.png",
   });
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [projectImageMode, setProjectImageMode] = useState<'url' | 'upload'>('url');
+  const [projectImagePreview, setProjectImagePreview] = useState<string>("/pim.png");
 
   // About state
   const [aboutContent, setAboutContent] = useState<string>("");
@@ -240,6 +242,43 @@ export default function AdminPage() {
   const handleProjectFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setProjectForm((pf) => ({ ...pf, [name]: value }));
+    if (name === 'imageUrl') {
+      setProjectImagePreview(value);
+    }
+  };
+
+  const handleProjectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setProjLoading(true);
+    setProjMessage("Uploading image...");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Image upload failed");
+      }
+
+      const data = await res.json();
+      const imageUrl = data.path;
+
+      setProjectImagePreview(imageUrl);
+      setProjectForm((pf) => ({ ...pf, imageUrl }));
+      setProjMessage("Image uploaded successfully");
+    } catch (err: any) {
+      setProjError(err.message || "Image upload failed");
+    } finally {
+      setProjLoading(false);
+    }
   };
 
   const refreshProjects = async () => {
@@ -269,6 +308,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to create project");
       setProjMessage("Project created");
       setProjectForm({ title: "", description: "", tags: "", imageUrl: "/pim.png" });
+      setProjectImagePreview("/pim.png");
       await refreshProjects();
     } catch (err: any) {
       setProjError(err.message || "Failed to create project");
@@ -280,6 +320,7 @@ export default function AdminPage() {
   const startEditProject = (p: ProjectItem) => {
     setEditingProjectId(p.id);
     setProjectForm({ title: p.title, description: p.description, tags: p.tags, imageUrl: p.imageUrl || "/pim.png" });
+    setProjectImagePreview(p.imageUrl || "/pim.png");
     setProjMessage(null);
     setProjError(null);
   };
@@ -287,6 +328,7 @@ export default function AdminPage() {
   const cancelEditProject = () => {
     setEditingProjectId(null);
     setProjectForm({ title: "", description: "", tags: "", imageUrl: "/pim.png" });
+    setProjectImagePreview("/pim.png");
   };
 
   const submitUpdateProject = async (e: React.FormEvent) => {
@@ -399,7 +441,7 @@ export default function AdminPage() {
     } catch {}
   };
 
-  const handleExpChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleExpChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setExpForm((f) => ({ ...f, [name]: value }));
   };
@@ -576,14 +618,70 @@ export default function AdminPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image URL</label>
-              <input
-                type="text"
-                name="imageUrl"
-                value={projectForm.imageUrl}
-                onChange={handleProjectFormChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Project Image</label>
+              
+              {/* Toggle buttons */}
+              <div className="flex mb-3 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setProjectImageMode('url')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    projectImageMode === 'url'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  URL Link
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProjectImageMode('upload')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    projectImageMode === 'upload'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Upload File
+                </button>
+              </div>
+
+              {/* URL Input */}
+              {projectImageMode === 'url' && (
+                <input
+                  type="text"
+                  name="imageUrl"
+                  value={projectForm.imageUrl}
+                  onChange={handleProjectFormChange}
+                  placeholder="https://example.com/image.jpg"
+                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              )}
+
+              {/* File Upload */}
+              {projectImageMode === 'upload' && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProjectImageUpload}
+                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              )}
+
+              {/* Image Preview */}
+              {projectImagePreview && (
+                <div className="mt-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Preview:</p>
+                  <img
+                    src={projectImagePreview}
+                    alt="Project preview"
+                    className="w-32 h-20 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                    onError={(e) => {
+                      e.currentTarget.src = "/pim.png";
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div>
