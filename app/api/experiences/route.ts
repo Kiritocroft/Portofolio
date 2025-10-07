@@ -5,7 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
   try {
-    const experiences = await prisma.experience.findMany({ orderBy: { updatedAt: "desc" } });
+    const experiences = await prisma.experience.findMany({ orderBy: { order: "asc" } });
     return NextResponse.json(experiences);
   } catch (error) {
     console.error("Error fetching experiences:", error);

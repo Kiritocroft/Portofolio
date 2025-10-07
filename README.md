@@ -9,6 +9,7 @@ A fully dynamic portfolio website with admin panel to manage all homepage conten
 
 - **🎨 Fully Dynamic Content:** All homepage content can be edited directly from admin panel
 - **🔐 Admin Panel:** Secure admin panel to manage profile, projects, about, skills, and experience
+- **🔄 Drag & Drop Reordering:** Easily reorder skills, projects, and experiences with intuitive drag and drop
 - **💾 Database Integration:** Uses MySQL (XAMPP) to store all data
 - **📱 Responsive Design:** Perfect display on all devices (mobile, tablet, desktop)
 - **🎭 Animations:** Smooth animations with Framer Motion
@@ -109,6 +110,7 @@ After login, you'll access http://localhost:3000/admin with features:
 - **Add new project:** Fill title, description, tags (comma separated), image URL
 - **Edit project:** Click "Edit" button on existing project
 - **Delete project:** Click "Delete" button
+- **Reorder projects:** Use drag handle (⋮⋮) to drag and drop projects in desired order
 - All changes instantly appear in "My Projects" homepage section
 
 #### 📖 About Management
@@ -117,15 +119,32 @@ After login, you'll access http://localhost:3000/admin with features:
 - Click "Save About" to save
 
 #### 🛠️ Skills Management
-- **Add new skill:** Enter skill name and order (optional)
+- **Add new skill:** Enter skill name
 - **Delete skill:** Click "Delete" button on existing skill
+- **Reorder skills:** Use drag handle (⋮⋮) to drag and drop skills in desired order
 - Skills appear in "My Skills" homepage section with animations
 
 #### 💼 Experience Management
 - **Add new experience:** Fill title, location, description, date
-- **Choose icon:** Dropdown with Work, React, or Graduation options
+- **Choose icon:** Dropdown with Work, Education, or Graduation options
 - **Delete experience:** Click "Delete" button
+- **Reorder experiences:** Use drag handle (⋮⋮) to drag and drop experiences in desired order
 - Experience appears in "My Experience" timeline on homepage
+
+### 🔄 Drag & Drop Reordering
+
+The admin panel features intuitive drag and drop functionality for reordering content:
+
+- **Drag Handle:** Look for the `⋮⋮` icon on the left side of each item
+- **How to Reorder:** Click and hold the drag handle, then drag the item to your desired position
+- **Visual Feedback:** Items become semi-transparent while dragging
+- **Auto-Save:** Order changes are automatically saved to the database
+- **Separate Controls:** Drag handle is separate from Edit/Delete buttons to prevent conflicts
+
+**Available for:**
+- Skills (reorder how they appear in "My Skills" section)
+- Projects (reorder project display order)
+- Experiences (reorder timeline entries)
 
 ### Tips for Beginners
 
@@ -134,6 +153,7 @@ After login, you'll access http://localhost:3000/admin with features:
 3. **Update About:** Tell your story
 4. **Fill Skills:** List technologies you know
 5. **Add Experience:** Education and work history
+6. **Organize Order:** Use drag and drop to arrange content in your preferred order
 
 ## 🔧 Troubleshooting
 

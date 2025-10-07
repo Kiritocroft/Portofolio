@@ -3,6 +3,409 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Sortable Skill Item Component
+function SortableSkillItem({ 
+  skill, 
+  editingSkillId, 
+  editSkillName, 
+  setEditSkillName, 
+  updateSkill, 
+  cancelEditSkill, 
+  startEditSkill, 
+  deleteSkill, 
+  skillsLoading 
+}: {
+  skill: SkillItem;
+  editingSkillId: string | null;
+  editSkillName: string;
+  setEditSkillName: (name: string) => void;
+  updateSkill: (id: string) => void;
+  cancelEditSkill: () => void;
+  startEditSkill: (skill: SkillItem) => void;
+  deleteSkill: (id: string) => void;
+  skillsLoading: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: skill.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li 
+      ref={setNodeRef} 
+      style={style} 
+      className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md"
+    >
+      {editingSkillId === skill.id ? (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Skill name</label>
+            <input
+              type="text"
+              value={editSkillName}
+              onChange={(e) => setEditSkillName(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => updateSkill(skill.id)} 
+              disabled={skillsLoading}
+              className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              {skillsLoading ? "Saving..." : "Save"}
+            </button>
+            <button 
+              onClick={cancelEditSkill}
+              className="px-3 py-1.5 text-sm rounded-md bg-gray-600 text-white hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div 
+              {...attributes} 
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
+            >
+              ⋮⋮
+            </div>
+            <span>{skill.name}</span>
+          </div>
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => startEditSkill(skill)} 
+              className="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Edit
+            </button>
+            <button 
+              onClick={() => deleteSkill(skill.id)} 
+              className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
+
+function SortableProjectItem({ 
+  project, 
+  editingProjectId, 
+  projectForm, 
+  handleProjectFormChange, 
+  submitUpdateProject, 
+  cancelEditProject, 
+  startEditProject, 
+  deleteProject, 
+  projectsLoading 
+}: {
+  project: ProjectItem;
+  editingProjectId: string | null;
+  projectForm: ProjectItem;
+  handleProjectFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  submitUpdateProject: (e: React.FormEvent) => void;
+  cancelEditProject: () => void;
+  startEditProject: (project: ProjectItem) => void;
+  deleteProject: (id: string) => void;
+  projectsLoading: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md"
+    >
+      {editingProjectId === project.id ? (
+        <form onSubmit={submitUpdateProject} className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+            <input
+              type="text"
+              name="title"
+              value={projectForm.title}
+              onChange={handleProjectFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+            <textarea
+              name="description"
+              value={projectForm.description}
+              onChange={handleProjectFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags (comma separated)</label>
+            <input
+              type="text"
+              name="tags"
+              value={projectForm.tags}
+              onChange={handleProjectFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image URL</label>
+            <input
+              type="text"
+              name="imageUrl"
+              value={projectForm.imageUrl}
+              onChange={handleProjectFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div className="flex space-x-2">
+            <button 
+              type="submit" 
+              disabled={projectsLoading}
+              className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              {projectsLoading ? "Saving..." : "Save"}
+            </button>
+            <button 
+              type="button"
+              onClick={cancelEditProject}
+              className="px-3 py-1.5 text-sm rounded-md bg-gray-600 text-white hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="flex items-center">
+          <div 
+            {...listeners}
+            className="mr-3 p-2 cursor-move text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            title="Drag to reorder"
+          >
+            ⋮⋮
+          </div>
+          <div className="flex-1">
+            <h4 className="font-medium">{project.title}</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{project.description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500">Tags: {project.tags}</p>
+          </div>
+          <div className="flex space-x-2 ml-4">
+            <button 
+              onClick={() => startEditProject(project)} 
+              className="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Edit
+            </button>
+            <button 
+              onClick={() => deleteProject(project.id)} 
+              className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
+
+function SortableExperienceItem({ 
+  experience, 
+  editingExpId, 
+  editExpForm, 
+  handleEditExpFormChange, 
+  submitUpdateExperience, 
+  cancelEditExperience, 
+  startEditExperience, 
+  deleteExperience, 
+  expLoading 
+}: {
+  experience: ExperienceItem;
+  editingExpId: string | null;
+  editExpForm: ExperienceItem;
+  handleEditExpFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  submitUpdateExperience: (e: React.FormEvent) => void;
+  cancelEditExperience: () => void;
+  startEditExperience: (experience: ExperienceItem) => void;
+  deleteExperience: (id: string) => void;
+  expLoading: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: experience.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md"
+    >
+      {editingExpId === experience.id ? (
+        <form onSubmit={submitUpdateExperience} className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+            <input
+              type="text"
+              name="title"
+              value={editExpForm.title}
+              onChange={handleEditExpFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
+            <input
+              type="text"
+              name="location"
+              value={editExpForm.location}
+              onChange={handleEditExpFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+            <textarea
+              name="description"
+              value={editExpForm.description}
+              onChange={handleEditExpFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
+            <input
+              type="text"
+              name="date"
+              value={editExpForm.date}
+              onChange={handleEditExpFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icon</label>
+            <select
+              name="icon"
+              value={editExpForm.icon}
+              onChange={handleEditExpFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              <option value="CgWorkAlt">Work</option>
+              <option value="FaGraduationCap">Education</option>
+              <option value="LuGraduationCap">Graduation</option>
+            </select>
+          </div>
+          <div className="flex space-x-2">
+            <button 
+              type="submit" 
+              disabled={expLoading}
+              className="px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              {expLoading ? "Saving..." : "Save"}
+            </button>
+            <button 
+              type="button"
+              onClick={cancelEditExperience}
+              className="px-3 py-1.5 text-sm rounded-md bg-gray-600 text-white hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="flex items-center">
+          <div 
+            {...listeners}
+            className="mr-3 p-2 cursor-move text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            title="Drag to reorder"
+          >
+            ⋮⋮
+          </div>
+          <div className="flex-1">
+            <h4 className="font-medium">{experience.title}</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{experience.location}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{experience.description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500">{experience.date} • {experience.icon}</p>
+          </div>
+          <div className="flex space-x-2 ml-4">
+            <button 
+              onClick={() => startEditExperience(experience)} 
+              className="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Edit
+            </button>
+            <button 
+              onClick={() => deleteExperience(experience.id)} 
+              className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
 
 interface ProfileData {
   id?: number;
@@ -29,7 +432,6 @@ interface ProjectItem {
 interface SkillItem { 
   id: string; 
   name: string; 
-  order?: number | null 
 }
 
 interface ExperienceItem { 
@@ -82,10 +484,11 @@ export default function AdminPage() {
   // Skills state
   const [skills, setSkills] = useState<SkillItem[]>([]);
   const [skillName, setSkillName] = useState<string>("");
-  const [skillOrder, setSkillOrder] = useState<string>("");
   const [skillsMessage, setSkillsMessage] = useState<string | null>(null);
   const [skillsError, setSkillsError] = useState<string | null>(null);
   const [skillsLoading, setSkillsLoading] = useState<boolean>(false);
+  const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
+  const [editSkillName, setEditSkillName] = useState<string>("");
 
   // Experiences state
   const [exps, setExps] = useState<ExperienceItem[]>([]);
@@ -93,6 +496,110 @@ export default function AdminPage() {
   const [expMessage, setExpMessage] = useState<string | null>(null);
   const [expError, setExpError] = useState<string | null>(null);
   const [expLoading, setExpLoading] = useState<boolean>(false);
+  const [editingExpId, setEditingExpId] = useState<string | null>(null);
+  const [editExpForm, setEditExpForm] = useState<ExperienceItem>({ id: "", title: "", location: "", description: "", date: "", icon: "CgWorkAlt" });
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Drag and drop handlers
+  const handleSkillDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const newSkills = [...skills];
+      const oldIndex = newSkills.findIndex((item) => item.id === active.id);
+      const newIndex = newSkills.findIndex((item) => item.id === over.id);
+      
+      const reorderedSkills = arrayMove(newSkills, oldIndex, newIndex);
+      setSkills(reorderedSkills);
+
+      // Save new order to database
+      try {
+        await fetch('/api/skills/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skillIds: reorderedSkills.map(skill => skill.id) })
+        });
+      } catch (error) {
+        console.error('Failed to save skill order:', error);
+        // Revert on error
+        setSkills(skills);
+      }
+    }
+  };
+
+  const handleProjectDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const newProjects = [...projects];
+      const oldIndex = newProjects.findIndex((item) => item.id === active.id);
+      const newIndex = newProjects.findIndex((item) => item.id === over.id);
+      
+      const reorderedProjects = arrayMove(newProjects, oldIndex, newIndex);
+      setProjects(reorderedProjects);
+
+      // Save new order to database
+      try {
+        await fetch('/api/projects/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectIds: reorderedProjects.map(project => project.id) })
+        });
+      } catch (error) {
+        console.error('Failed to save project order:', error);
+        // Revert on error
+        setProjects(projects);
+      }
+    }
+  };
+
+  const handleExperienceDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const newExps = [...exps];
+      const oldIndex = newExps.findIndex((item) => item.id === active.id);
+      const newIndex = newExps.findIndex((item) => item.id === over.id);
+      
+      const reorderedExps = arrayMove(newExps, oldIndex, newIndex);
+      setExps(reorderedExps);
+
+      // Save new order to database
+      try {
+        await fetch('/api/experiences/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ experienceIds: reorderedExps.map(exp => exp.id) })
+        });
+      } catch (error) {
+        console.error('Failed to save experience order:', error);
+        // Revert on error
+        setExps(exps);
+      }
+    }
+  };
+
+  // Generic drag end handler
+  const handleDragEnd = (event: DragEndEvent, type: 'skill' | 'project' | 'experience') => {
+    switch (type) {
+      case 'skill':
+        handleSkillDragEnd(event);
+        break;
+      case 'project':
+        handleProjectDragEnd(event);
+        break;
+      case 'experience':
+        handleExperienceDragEnd(event);
+        break;
+    }
+  };
 
   // Load profile
   useEffect(() => {
@@ -405,16 +912,14 @@ export default function AdminPage() {
     setSkillsError(null);
     setSkillsLoading(true);
     try {
-      const orderVal = skillOrder.trim() === "" ? null : Number(skillOrder);
       const res = await fetch("/api/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: skillName, order: orderVal }),
+        body: JSON.stringify({ name: skillName }),
       });
       if (!res.ok) throw new Error("Failed to add skill");
       setSkillsMessage("Skill added");
       setSkillName("");
-      setSkillOrder("");
       await refreshSkills();
     } catch (err: any) {
       setSkillsError(err.message || "Failed to add skill");
@@ -430,6 +935,38 @@ export default function AdminPage() {
       await refreshSkills();
     } catch (err: any) {
       setSkillsError(err.message || "Failed to delete skill");
+    }
+  };
+
+  const startEditSkill = (skill: SkillItem) => {
+    setEditingSkillId(skill.id);
+    setEditSkillName(skill.name);
+  };
+
+  const cancelEditSkill = () => {
+    setEditingSkillId(null);
+    setEditSkillName("");
+  };
+
+  const updateSkill = async (id: string) => {
+    setSkillsMessage(null);
+    setSkillsError(null);
+    setSkillsLoading(true);
+    try {
+      const res = await fetch(`/api/skills/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editSkillName }),
+      });
+      if (!res.ok) throw new Error("Failed to update skill");
+      setSkillsMessage("Skill updated");
+      setEditingSkillId(null);
+      setEditSkillName("");
+      await refreshSkills();
+    } catch (err: any) {
+      setSkillsError(err.message || "Failed to update skill");
+    } finally {
+      setSkillsLoading(false);
     }
   };
 
@@ -476,6 +1013,67 @@ export default function AdminPage() {
       await refreshExperiences();
     } catch (err: any) {
       setExpError(err.message || "Failed to delete experience");
+    }
+  };
+
+  const startEditExp = (exp: ExperienceItem) => {
+    setEditingExpId(exp.id);
+    setEditExpForm({ ...exp });
+  };
+
+  const cancelEditExp = () => {
+    setEditingExpId(null);
+    setEditExpForm({ id: "", title: "", location: "", description: "", date: "", icon: "CgWorkAlt" });
+  };
+
+  const handleEditExpChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditExpForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const updateExp = async (id: string) => {
+    setExpMessage(null);
+    setExpError(null);
+    setExpLoading(true);
+    try {
+      const { title, location, description, date, icon } = editExpForm;
+      const res = await fetch(`/api/experiences/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, location, description, date, icon }),
+      });
+      if (!res.ok) throw new Error("Failed to update experience");
+      setExpMessage("Experience updated");
+      setEditingExpId(null);
+      setEditExpForm({ id: "", title: "", location: "", description: "", date: "", icon: "CgWorkAlt" });
+      await refreshExperiences();
+    } catch (err: any) {
+      setExpError(err.message || "Failed to update experience");
+    } finally {
+      setExpLoading(false);
+    }
+  };
+
+  const submitUpdateExperience = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingExpId) return;
+    setExpLoading(true);
+    setExpMessage(null);
+    setExpError(null);
+    try {
+      const res = await fetch(`/api/experiences/${editingExpId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editExpForm),
+      });
+      if (!res.ok) throw new Error("Failed to update experience");
+      setExpMessage("Experience updated");
+      cancelEditExp();
+      await refreshExperiences();
+    } catch (err: any) {
+      setExpError(err.message || "Failed to update experience");
+    } finally {
+      setExpLoading(false);
     }
   };
 
@@ -703,6 +1301,7 @@ export default function AdminPage() {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
+
           <div className="flex items-center gap-2">
             <button
               type="submit"
@@ -723,21 +1322,30 @@ export default function AdminPage() {
           {!projLoading && projects.length === 0 && (
             <p className="text-sm text-gray-500">No projects yet.</p>
           )}
-          <ul className="space-y-3">
-            {projects.map((p) => (
-              <li key={p.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <p className="font-semibold">{p.title}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{p.description}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Tags: {p.tags}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => startEditProject(p)} className="px-3 py-1.5 text-sm rounded-md bg-yellow-500 text-white hover:bg-yellow-600">Edit</button>
-                  <button onClick={() => deleteProject(p.id)} className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700">Delete</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleProjectDragEnd}
+          >
+            <SortableContext items={projects} strategy={verticalListSortingStrategy}>
+              <ul className="space-y-3">
+                {projects.map((project) => (
+                  <SortableProjectItem
+                    key={project.id}
+                    project={project}
+                    editingProjectId={editingProjectId}
+                    projectForm={projectForm}
+                    handleProjectFormChange={handleProjectFormChange}
+                    submitUpdateProject={submitUpdateProject}
+                    cancelEditProject={cancelEditProject}
+                    startEditProject={startEditProject}
+                    deleteProject={deleteProject}
+                    projectsLoading={projLoading}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
 
@@ -764,37 +1372,42 @@ export default function AdminPage() {
         {skillsMessage && <div className="mb-4 p-3 rounded-md bg-green-100 text-green-800">{skillsMessage}</div>}
         {skillsError && <div className="mb-4 p-3 rounded-md bg-red-100 text-red-800">{skillsError}</div>}
         <form onSubmit={addSkill} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Skill name</label>
-              <input
-                type="text"
-                value={skillName}
-                onChange={(e) => setSkillName(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Order (optional)</label>
-              <input
-                type="number"
-                value={skillOrder}
-                onChange={(e) => setSkillOrder(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Skill name</label>
+            <input
+              type="text"
+              value={skillName}
+              onChange={(e) => setSkillName(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
           </div>
           <button type="submit" className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors" disabled={skillsLoading}>{skillsLoading ? "Adding..." : "Add Skill"}</button>
         </form>
         <div className="mt-6">
-          <ul className="space-y-3">
-            {skills.map((s) => (
-              <li key={s.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md flex items-center justify-between">
-                <span>{s.name}{typeof s.order === "number" ? ` (order: ${s.order})` : ""}</span>
-                <button onClick={() => deleteSkill(s.id)} className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700">Delete</button>
-              </li>
-            ))}
-          </ul>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleSkillDragEnd}
+          >
+            <SortableContext items={skills} strategy={verticalListSortingStrategy}>
+              <ul className="space-y-3">
+                {skills.map((skill) => (
+                  <SortableSkillItem
+                    key={skill.id}
+                    skill={skill}
+                    editingSkillId={editingSkillId}
+                    editSkillName={editSkillName}
+                    setEditSkillName={setEditSkillName}
+                    updateSkill={updateSkill}
+                    cancelEditSkill={cancelEditSkill}
+                    startEditSkill={startEditSkill}
+                    deleteSkill={deleteSkill}
+                    skillsLoading={skillsLoading}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
 
@@ -835,18 +1448,30 @@ export default function AdminPage() {
           <button type="submit" className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors" disabled={expLoading}>{expLoading ? "Adding..." : "Add Experience"}</button>
         </form>
         <div className="mt-6">
-          <ul className="space-y-3">
-            {exps.map((e) => (
-              <li key={e.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{e.title}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{e.location} — {e.date}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Icon: {e.icon}</p>
-                </div>
-                <button onClick={() => deleteExperience(e.id)} className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700">Delete</button>
-              </li>
-            ))}
-          </ul>
+          <DndContext 
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={(event) => handleDragEnd(event, 'experience')}
+          >
+            <SortableContext items={exps.map(e => e.id)} strategy={verticalListSortingStrategy}>
+              <ul className="space-y-3">
+                {exps.map((e) => (
+                  <SortableExperienceItem
+                    key={e.id}
+                    experience={e}
+                    editingExpId={editingExpId}
+                    editExpForm={editExpForm}
+                    handleEditExpFormChange={handleEditExpChange}
+                    submitUpdateExperience={submitUpdateExperience}
+                    cancelEditExperience={cancelEditExp}
+                    startEditExperience={startEditExp}
+                    deleteExperience={deleteExperience}
+                    expLoading={expLoading}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
 

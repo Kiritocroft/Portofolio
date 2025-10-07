@@ -6,7 +6,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function GET() {
   try {
     const projects = await prisma.project.findMany({
-      orderBy: { updatedAt: "desc" },
+      orderBy: [
+        { order: "asc" },
+        { updatedAt: "asc" }
+      ],
     });
     return NextResponse.json(projects);
   } catch (error) {
@@ -26,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    let { title, description, tags, imageUrl } = body;
+    let { title, description, tags, imageUrl, order } = body;
 
     if (!title || !description) {
       return NextResponse.json(
@@ -45,6 +48,7 @@ export async function POST(request: Request) {
         description,
         tags: tags || "",
         imageUrl: imageUrl || "/pim.png",
+        order,
       },
     });
 

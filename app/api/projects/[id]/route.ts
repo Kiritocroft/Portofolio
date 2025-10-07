@@ -12,7 +12,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     const id = params.id;
     const body = await request.json();
-    let { title, description, tags, imageUrl } = body;
+    let { title, description, tags, imageUrl, order } = body;
 
     if (Array.isArray(tags)) {
       tags = tags.join(",");
@@ -20,7 +20,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     const project = await prisma.project.update({
       where: { id },
-      data: { title, description, tags, imageUrl },
+      data: { title, description, tags, imageUrl, order },
     });
 
     return NextResponse.json(project);

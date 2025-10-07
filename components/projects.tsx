@@ -11,6 +11,7 @@ interface ProjectItem {
   description: string;
   tags: string; // stored as comma-separated in DB
   imageUrl: string;
+  order?: number | null;
 }
 
 export default function Projects() {
