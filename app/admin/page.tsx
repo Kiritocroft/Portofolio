@@ -136,7 +136,7 @@ function SortableProjectItem({
 }: {
   project: ProjectItem;
   editingProjectId: string | null;
-  projectForm: ProjectItem;
+  projectForm: Omit<ProjectItem, "id">;
   handleProjectFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   submitUpdateProject: (e: React.FormEvent) => void;
   cancelEditProject: () => void;
