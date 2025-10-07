@@ -9,14 +9,14 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Project {
   id          String   @id @default(cuid())
   title       String
-  description String   @db.Text
+  description String
   tags        String
   imageUrl    String
   order       Int?
@@ -59,7 +59,7 @@ model ProfileImage {
 
 model About {
   id        String   @id @default(cuid())
-  content   String   @db.Text
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -76,7 +76,7 @@ model Experience {
   id          String   @id @default(cuid())
   title       String
   location    String
-  description String   @db.Text
+  description String
   date        String
   icon        String   @default("CgWorkAlt") // Icon name from react-icons
   order       Int?
