@@ -2,6 +2,8 @@
 
 A fully dynamic portfolio website with admin panel to manage all homepage content. Built with modern technologies and beginner-friendly.
 
+<!-- Updated for PostgreSQL deployment -->
+
 ![Portfolio Preview](https://i.imgur.com/IHmtXN7.png)
 ![Portfolio Preview](https://i.imgur.com/KEMBuTw.png)
 
