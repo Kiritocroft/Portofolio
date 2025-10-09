@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import SectionHeading from "./section-heading";
-import { motion } from "framer-motion";
 import { useSectionInView } from "@/lib/hooks";
 import SubmitBtn from "./submit-btn";
 import toast from "react-hot-toast";
@@ -42,22 +41,10 @@ export default function Contact() {
   };
 
   return (
-    <motion.section
+    <section
       id="contact"
       ref={ref}
-      className="mb-20 sm:mb-28 w-[min(100%,38rem)] text-center"
-      initial={{
-        opacity: 0,
-      }}
-      whileInView={{
-        opacity: 1,
-      }}
-      transition={{
-        duration: 1,
-      }}
-      viewport={{
-        once: true,
-      }}
+      className="mb-20 sm:mb-28 w-[min(100%,38rem)] text-center opacity-0 animate-fadeIn"
     >
       <SectionHeading>Contact me</SectionHeading>
 
@@ -70,7 +57,8 @@ export default function Contact() {
       </p>
 
       <form
-        className="mt-10 flex flex-col dark:text-black"
+        className="mt-10 flex flex-col dark:text-black opacity-0 animate-fadeIn"
+        style={{ animationDelay: "0.2s" }}
         onSubmit={handleSubmit}
       >
         <input
@@ -90,6 +78,6 @@ export default function Contact() {
         />
         <SubmitBtn pending={pending} />
       </form>
-    </motion.section>
+    </section>
   );
 }

@@ -50,11 +50,11 @@ export default function Experience() {
   }, []);
 
   return (
-    <section id="experience" ref={ref} className="scroll-mt-28 mb-28 sm:mb-40">
+    <section id="experience" ref={ref} className="scroll-mt-28 mb-28 sm:mb-40 opacity-0 animate-fadeIn">
       <SectionHeading>My experience</SectionHeading>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600 opacity-0 animate-fadeIn">{error}</p>}
       <VerticalTimeline lineColor="">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <React.Fragment key={item.id}>
             <VerticalTimelineElement
               contentStyle={{
@@ -64,6 +64,8 @@ export default function Experience() {
                 border: "1px solid rgba(0, 0, 0, 0.05)",
                 textAlign: "left",
                 padding: "1.3rem 2rem",
+                opacity: 0,
+                animation: `fadeIn 0.5s ease-out ${index * 0.1}s forwards`,
               }}
               contentArrowStyle={{
                 borderRight:

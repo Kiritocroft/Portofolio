@@ -19,23 +19,28 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 export default function ThemeContextProvider({
   children,
 }: ThemeContextProviderProps) {
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<Theme>("system");
   const [actualTheme, setActualTheme] = useState<"light" | "dark">("light");
 
   const toggleTheme = () => {
+    if (!mounted) return;
+    
     if (theme === "light") {
       setTheme("dark");
-      window.localStorage.setItem("theme", "dark");
+      localStorage.setItem("theme", "dark");
     } else if (theme === "dark") {
       setTheme("system");
-      window.localStorage.setItem("theme", "system");
+      localStorage.setItem("theme", "system");
     } else {
       setTheme("light");
-      window.localStorage.setItem("theme", "light");
+      localStorage.setItem("theme", "light");
     }
   };
 
   const updateActualTheme = (themeMode: Theme) => {
+    if (!mounted) return;
+
     let isDark = false;
 
     if (themeMode === "system") {
@@ -55,7 +60,8 @@ export default function ThemeContextProvider({
 
   // Initialize theme from localStorage (runs once on mount)
   useEffect(() => {
-    const localTheme = window.localStorage.getItem("theme") as Theme | null;
+    setMounted(true);
+    const localTheme = localStorage.getItem("theme") as Theme | null;
     const initialTheme = localTheme || "system";
 
     setTheme(initialTheme);
@@ -64,11 +70,15 @@ export default function ThemeContextProvider({
 
   // Keep actualTheme in sync when theme changes
   useEffect(() => {
-    updateActualTheme(theme);
-  }, [theme]);
+    if (mounted) {
+      updateActualTheme(theme);
+    }
+  }, [theme, mounted]);
 
   // Listen for system theme changes and only react when current theme is 'system'
   useEffect(() => {
+    if (!mounted) return;
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleSystemThemeChange = () => {
       if (theme === "system") {
@@ -80,7 +90,11 @@ export default function ThemeContextProvider({
     return () => {
       mediaQuery.removeEventListener("change", handleSystemThemeChange);
     };
-  }, [theme]);
+  }, [theme, mounted]);
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <ThemeContext.Provider
@@ -100,7 +114,7 @@ export function useTheme() {
 
   if (context === null) {
     throw new Error("useTheme must be used within a ThemeContextProvider");
-    }
+  }
 
   return context;
 }

@@ -5,6 +5,7 @@ import ActiveSectionContextProvider from "@/context/active-section-context";
 import Footer from "@/components/footer";
 import ThemeSwitch from "@/components/theme-switch";
 import ThemeContextProvider from "@/context/theme-context";
+import LoadingProvider from "@/context/loading-context";
 import { Toaster } from "react-hot-toast";
 import AuthProvider from '@/components/auth-provider';
 import ClientLayout from '@/components/client-layout';
@@ -41,14 +42,16 @@ export default function RootLayout({
           `,
         }} />
         <ThemeContextProvider>
-          <ActiveSectionContextProvider>
-            <AuthProvider>
-              <ClientLayout>
-                {children}
-              </ClientLayout>
-              <Toaster position="top-right" />
-            </AuthProvider>
-          </ActiveSectionContextProvider>
+          <LoadingProvider>
+            <ActiveSectionContextProvider>
+              <AuthProvider>
+                <ClientLayout>
+                  {children}
+                </ClientLayout>
+                <Toaster position="top-right" />
+              </AuthProvider>
+            </ActiveSectionContextProvider>
+          </LoadingProvider>
         </ThemeContextProvider>
       </body>
     </html>

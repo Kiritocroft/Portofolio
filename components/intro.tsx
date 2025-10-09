@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-scroll";
 import { BsArrowRight, BsLinkedin } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
@@ -14,7 +13,7 @@ interface ProfileData {
   name: string;
   title: string;
   description: string;
-  profileImage: string;  // Ubah dari imageUrl ke profileImage
+  profileImage: string;
 }
 
 export default function Intro() {
@@ -47,15 +46,9 @@ export default function Intro() {
       className="mb-28 max-w-[75rem] sm:mb-0 scroll-mt-[100rem]"
     >
       <div className="flex flex-col sm:flex-row items-center justify-center gap-16">
-        {/* Left Column - Text Content */}
         <div className="sm:w-1/2 flex flex-col items-start text-left">
-          {/* Menghapus komponen FadeIn */}
-            <motion.h1
-              className="mb-4 text-2xl font-medium !leading-[1.5] sm:text-4xl"
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {profile ? (
+          <h1 className="mb-4 text-2xl font-medium !leading-[1.5] sm:text-4xl opacity-0 animate-fadeIn">
+            {profile ? (
               <>
                 <span className="font-bold">{profile.name}</span>
                 <br />
@@ -71,17 +64,9 @@ export default function Intro() {
                 </span>
               </>
             )}
-          </motion.h1>
+          </h1>
 
-          <motion.div
-            className="flex flex-col sm:flex-row items-center justify-start gap-4 text-lg font-medium"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.1,
-            }}
-          >
-            {/* Menghapus komponen Bounce */}
+          <div className="flex flex-col sm:flex-row items-center justify-start gap-4 text-lg font-medium opacity-0 animate-fadeIn">
             <Link
               to="contact"
               smooth={true}
@@ -96,7 +81,6 @@ export default function Intro() {
               <BsArrowRight className="opacity-70 group-hover:translate-x-1 transition" />
             </Link>
 
-            {/* Menghapus komponen Bounce */}
             <a
               className="group bg-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus:scale-110 hover:scale-110 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10"
               href="/CV.pdf"
@@ -105,20 +89,12 @@ export default function Intro() {
               Download CV{" "}
               <HiDownload className="opacity-60 group-hover:translate-y-1 transition" />
             </a>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Right Column - Image and Title */}
         <div className="sm:w-1/2 flex flex-col items-center justify-center">
           <div className="relative hex-container">
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 0.95 }}
-              transition={{
-                type: "tween",
-                duration: 0.2,
-              }}
-            >
+            <div className="opacity-0 animate-scaleIn">
               <Image
                 src={profile ? profile.profileImage : "/pp.jpg"}
                 alt={profile ? `${profile.name} portrait` : "Portrait"}
@@ -133,43 +109,20 @@ export default function Intro() {
                   padding: profile && profile.profileImage.includes('qr') ? '10px' : '0',
                 }}
               />
-            </motion.div>
-            <motion.span
-              className="absolute bottom-0 right-0 text-4xl"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                type: "spring",
-                stiffness: 125,
-                delay: 0.1,
-                duration: 0.7,
-              }}
-            >
+            </div>
+            <span className="absolute bottom-0 right-0 text-4xl opacity-0 animate-scaleIn">
               👋
-            </motion.span>
+            </span>
           </div>
           {profile && (
-            <motion.h2
-                className="mt-4 text-2xl font-semibold"
-                initial={{ opacity: 0, y: 100 }}
-                animate={{ opacity: 1, y: 0 }}
-            >
-                {profile.title}
-            </motion.h2>
+            <h2 className="mt-4 text-2xl font-semibold opacity-0 animate-fadeIn">
+              {profile.title}
+            </h2>
           )}
         </div>
       </div>
 
-      {/* Social Links - Moved below the two columns */}
-      <motion.div
-        className="flex items-center justify-center gap-4 mt-8"
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          delay: 0.2,
-        }}
-      >
-        {/* Menghapus komponen Bounce */}
+      <div className="flex items-center justify-center gap-4 mt-8 opacity-0 animate-fadeIn">
         <a
           className="bg-white p-4 text-gray-700 hover:text-gray-950 flex items-center gap-2 rounded-full focus:scale-[1.15] hover:scale-[1.15] active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
           href="https://www.linkedin.com/in/nabil-athaillah"
@@ -178,7 +131,6 @@ export default function Intro() {
           <BsLinkedin />
         </a>
 
-        {/* Menghapus komponen Bounce */}
         <a
           className="bg-white p-4 text-gray-700 flex items-center gap-2 text-[1.35rem] rounded-full focus:scale-[1.15] hover:scale-[1.15] hover:text-gray-950 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
           href="https://github.com/Kiritocroft"
@@ -186,7 +138,7 @@ export default function Intro() {
         >
           <FaGithubSquare />
         </a>
-      </motion.div>
+      </div>
     </section>
   );
 }
