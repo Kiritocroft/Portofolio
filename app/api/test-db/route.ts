@@ -1,26 +1,35 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Test basic database connection by counting projects
-    const projectCount = await prisma.project.count();
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`;
     
-    // Get a sample project to see its structure
-    const sampleProject = await prisma.project.findFirst();
+    // Get database URL (without sensitive info)
+    const dbUrl = process.env.PRISMA_DATABASE_URL || process.env.DATABASE_URL;
+    let dbInfo = "Not configured";
+    if (dbUrl) {
+      try {
+        const url = new URL(dbUrl);
+        dbInfo = `${url.protocol}//${url.hostname}:${url.port || 5432}${url.pathname}`;
+      } catch {
+        dbInfo = "URL parsing failed";
+      }
+    }
     
     return NextResponse.json({
       success: true,
-      projectCount,
-      sampleProject,
-      message: "Database connection successful"
+      message: "Database connection successful",
+      database: dbInfo,
+      timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
-    console.error("Database connection error:", error);
+  } catch (error) {
+    console.error('Database connection test failed:', error);
     return NextResponse.json({
       success: false,
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
     }, { status: 500 });
   } finally {
     await prisma.$disconnect();

@@ -1,247 +1,136 @@
-# Personal Portfolio Website
+# Portfolio Website
 
-A fully dynamic portfolio website with admin panel to manage all homepage content. Built with modern technologies and beginner-friendly.
+A modern portfolio website built with Next.js 15, Prisma, and PostgreSQL.
 
-<!-- Updated for PostgreSQL deployment -->
+## Features
 
-![Portfolio Preview](https://i.imgur.com/IHmtXN7.png)
-![Portfolio Preview](https://i.imgur.com/KEMBuTw.png)
+- Responsive design with Tailwind CSS
+- Admin dashboard for content management
+- Project showcase with external links
+- Skills and experience sections
+- Dark mode support
+- Drag and drop reordering
+- Authentication with NextAuth.js
 
-## ✨ Key Features
+## Getting Started
 
-- **🎨 Fully Dynamic Content:** All homepage content can be edited directly from admin panel
-- **🔐 Admin Panel:** Secure admin panel to manage profile, projects, about, skills, and experience
-- **🔄 Drag & Drop Reordering:** Easily reorder skills, projects, and experiences with intuitive drag and drop
-- **💾 Database Integration:** Uses MySQL (XAMPP) to store all data
-- **📱 Responsive Design:** Perfect display on all devices (mobile, tablet, desktop)
-- **🎭 Animations:** Smooth animations with Framer Motion
-- **📧 Contact Form:** Contact form integrated with email service
-- **🌙 Dark/Light Mode:** Theme switcher for dark and light modes
+### Prerequisites
 
-## 🚀 Quick Start for Beginners
+- Node.js 18+
+- PostgreSQL database
+- Prisma account (for Prisma Accelerate, optional)
 
-### 1. Prerequisites (Required Software)
+### Installation
 
-**Must install:**
-- [Node.js](https://nodejs.org/en/download/) (version 18 or newer)
-- [XAMPP](https://www.apachefriends.org/download.html) for Windows (includes MySQL + phpMyAdmin)
-
-**Alternatives for other OS:**
-- Mac: [MAMP](https://www.mamp.info/en/downloads/) or [Homebrew](https://brew.sh/)
-- Linux: `sudo apt install mysql-server nodejs npm`
-
-### 2. Database Setup (XAMPP)
-
-1. **Start XAMPP:**
-   - Open XAMPP Control Panel
-   - Click "Start" on Apache and MySQL
-   - Make sure both services are green
-
-2. **Create Database:**
-   - Open browser, visit http://localhost/phpmyadmin
-   - Click "New" in left sidebar
-   - Enter database name: `portofolio_db`
-   - Click "Create"
-
-### 3. Installation & Setup
-
-1. **Clone repository:**
+1. Clone the repository:
    ```bash
-   git clone https://github.com/Kiritocroft/Portofolio.git
-   cd Portofolio
+   git clone <repository-url>
+   cd portfolio
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. **Setup environment variables:**
-   - Copy `.env.example` file to `.env`
-   - Edit `.env` file and fill in:
-   ```env
-   # Database (adjust to your XAMPP setup)
-   DATABASE_URL="mysql://root:@localhost:3306/portofolio_db"
-   
-   # Admin credentials (change to your email and password)
-   ADMIN_EMAIL=admin@example.com
-   ADMIN_PASSWORD=your_secure_password
-   
-   # Security (generate random strings)
-   JWT_SECRET=your_jwt_secret_here
-   NEXTAUTH_SECRET=your_nextauth_secret_here
-   NEXTAUTH_URL=http://localhost:3000
-   
-   # Email API (optional, for contact form)
-   RESEND_API_KEY=your_resend_api_key_here
+3. Set up environment variables (see [.env.example](file:///C:/Users/MSI%20ID/Downloads/portofolio/.env.example) for required variables):
+   ```bash
+   cp .env.example .env
    ```
 
-4. **Setup database schema:**
+4. Run database migrations:
    ```bash
    npx prisma db push
    ```
 
-5. **Seed initial data:**
+5. Seed the database:
    ```bash
    npx prisma db seed
    ```
 
-6. **Run the application:**
+6. Start the development server:
    ```bash
    npm run dev
    ```
-   Open http://localhost:3000 in your browser
 
-## 🎛️ How to Use Admin Panel
+## Deployment to Vercel
 
-### Login to Admin
-1. Go to http://localhost:3000/login
-2. Enter `ADMIN_EMAIL` and `ADMIN_PASSWORD` from your `.env` file
-3. Click "Login"
+1. Push your code to a Git repository
+2. Connect your repository to Vercel
+3. Set the environment variables in Vercel project settings:
+   - `DATABASE_URL` - Your PostgreSQL connection string
+   - `PRISMA_DATABASE_URL` - Your Prisma Accelerate URL (if using)
+   - `NEXTAUTH_SECRET` - A random string for NextAuth
+   - `NEXTAUTH_URL` - Your deployed URL
+   - `ADMIN_EMAIL` - Admin email for login
+   - `ADMIN_PASSWORD` - Admin password
+   - `RESEND_API_KEY` - Resend API key (if using email functionality)
 
-### Managing Content in Admin Panel
+4. Add the build command in Vercel settings:
+   ```bash
+   prisma generate && next build
+   ```
 
-After login, you'll access http://localhost:3000/admin with features:
+## Environment Variables
 
-#### 📝 Profile Management
-- **Edit name, title, description** displayed in homepage Intro section
-- **Upload profile photo** or use default photo
-- Click "Save Changes" to save to database
+See [DEPLOYMENT_GUIDE.md](file:///C:/Users/MSI%20ID/Downloads/portofolio/DEPLOYMENT_GUIDE.md) for detailed information about environment variables.
 
-#### 📂 Projects Management
-- **Add new project:** Fill title, description, tags (comma separated), image URL
-- **Edit project:** Click "Edit" button on existing project
-- **Delete project:** Click "Delete" button
-- **Reorder projects:** Use drag handle (⋮⋮) to drag and drop projects in desired order
-- All changes instantly appear in "My Projects" homepage section
+## API Routes
 
-#### 📖 About Management
-- **Edit "About me" content** with large textarea
-- Supports multiline text
-- Click "Save About" to save
+- `/api/health` - Health check endpoint
+- `/api/test-db` - Database connection test
+- `/api/test-auth` - Authentication test
+- `/api/profile` - Profile management
+- `/api/projects` - Project management
+- `/api/skills` - Skills management
+- `/api/experiences` - Experience management
+- `/api/about` - About content management
+- `/api/upload` - File upload
+- `/api/create-admin` - Admin user creation (protected)
 
-#### 🛠️ Skills Management
-- **Add new skill:** Enter skill name
-- **Delete skill:** Click "Delete" button on existing skill
-- **Reorder skills:** Use drag handle (⋮⋮) to drag and drop skills in desired order
-- Skills appear in "My Skills" homepage section with animations
+## Troubleshooting
 
-#### 💼 Experience Management
-- **Add new experience:** Fill title, location, description, date
-- **Choose icon:** Dropdown with Work, Education, or Graduation options
-- **Delete experience:** Click "Delete" button
-- **Reorder experiences:** Use drag handle (⋮⋮) to drag and drop experiences in desired order
-- Experience appears in "My Experience" timeline on homepage
+### "Gagal menyimpan" (Failed to save) Error
 
-### 🔄 Drag & Drop Reordering
+This usually indicates:
 
-The admin panel features intuitive drag and drop functionality for reordering content:
+1. Database connection issues
+2. Missing environment variables
+3. Authentication problems
+4. Required fields not being provided
 
-- **Drag Handle:** Look for the `⋮⋮` icon on the left side of each item
-- **How to Reorder:** Click and hold the drag handle, then drag the item to your desired position
-- **Visual Feedback:** Items become semi-transparent while dragging
-- **Auto-Save:** Order changes are automatically saved to the database
-- **Separate Controls:** Drag handle is separate from Edit/Delete buttons to prevent conflicts
+To debug:
 
-**Available for:**
-- Skills (reorder how they appear in "My Skills" section)
-- Projects (reorder project display order)
-- Experiences (reorder timeline entries)
-
-### Tips for Beginners
-
-1. **Start with Profile:** Edit name and description first
-2. **Add Projects:** Showcase your best projects
-3. **Update About:** Tell your story
-4. **Fill Skills:** List technologies you know
-5. **Add Experience:** Education and work history
-6. **Organize Order:** Use drag and drop to arrange content in your preferred order
-
-## 🔧 Troubleshooting
+1. Check the browser console for network errors
+2. Check Vercel logs for server-side errors
+3. Test database connectivity with `/api/test-db`
+4. Test authentication with `/api/test-auth`
 
 ### Database Issues
-**Error: "Failed to connect to database"**
-- Make sure XAMPP MySQL service is running (green in Control Panel)
-- Check database name in phpMyAdmin matches your `.env`
-- For XAMPP default: username=`root`, password=empty
 
-**Error: "Table doesn't exist"**
+1. Ensure your database URL is correctly formatted
+2. If using Prisma Accelerate, make sure both `DATABASE_URL` and `PRISMA_DATABASE_URL` are set
+3. Check that your database is accessible from Vercel
+
+## Development
+
+### Adding New Features
+
+1. Update the Prisma schema in [prisma/schema.prisma](file:///C:/Users/MSI%20ID/Downloads/portofolio/prisma/schema.prisma)
+2. Run `npx prisma generate` to update the Prisma client
+3. Run `npx prisma db push` to update the database schema
+4. Implement the API routes
+5. Update the admin dashboard UI
+
+### Testing
+
+Run the development server and test all functionality:
 ```bash
-npx prisma db push
-npx prisma db seed
-```
-
-### Admin Login Issues
-**Cannot login to admin**
-- Make sure `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set in `.env`
-- Run seeding again: `npx prisma db seed`
-- Check database in phpMyAdmin, `User` table should have admin data
-
-### Development Issues
-**Error: "Module not found"**
-```bash
-npm install
-```
-
-**Error: "Prisma Client not generated"**
-```bash
-npx prisma generate
 npm run dev
 ```
 
-**Port 3000 already in use**
-```bash
-# Change port in package.json or kill process using port 3000
-npx kill-port 3000
-npm run dev
-```
+## Learn More
 
-## 📁 Project Structure
-
-```
-├── app/
-│   ├── admin/          # Admin panel pages
-│   ├── api/            # API routes for CRUD operations
-│   ├── login/          # Admin login page
-│   └── page.tsx        # Main homepage
-├── components/         # React components (About, Skills, Projects, etc.)
-├── prisma/
-│   ├── schema.prisma   # Database schema
-│   └── seed.ts         # Initial database data
-├── public/             # Static files (images, CV, etc.)
-├── .env.example        # Environment variables template
-└── README.md           # This documentation
-```
-
-## 🌐 Deployment
-
-### Deploy to Vercel (Recommended)
-1. Push code to GitHub repository
-2. Connect repository to [Vercel](https://vercel.com/)
-3. Set environment variables in Vercel dashboard
-4. Auto-deploy on every push to main branch
-
-### Deploy to Other Hosting
-1. Build production: `npm run build`
-2. Upload `.next`, `public`, and other files
-3. Setup environment variables on hosting
-4. Ensure MySQL database is accessible from hosting
-
-## 📞 Support
-
-If you encounter issues:
-1. Check Troubleshooting section above
-2. Make sure all prerequisites are installed
-3. Check error logs in terminal when running `npm run dev`
-
-## 🎯 Next Steps
-
-After successful setup:
-1. Customize content through admin panel
-2. Replace profile photo and CV in `public/` folder
-3. Adjust colors and styling in `app/globals.css`
-4. Deploy to internet for public access
-
----
-
-**Congratulations! Your portfolio is ready to use! 🎉**
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [NextAuth.js Documentation](https://next-auth.js.org/)

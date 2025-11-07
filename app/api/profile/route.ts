@@ -18,9 +18,8 @@ export async function GET() {
         description: "Passionate about creating beautiful and functional web applications with modern technologies.",
         location: "Indonesia",
         status: "Welcome To My Portfolio",
-        edu_major: "Computer Science",
-        edu_university: "University",
-        edu_graduation_year: 2024,
+        education: "Computer Science at University (2024)",
+        experience: "2+ years",
         profileImage: "/pp.jpg",
         backgroundGradient: "from-blue-600 via-purple-600 to-indigo-600"
       });
@@ -61,11 +60,12 @@ export async function POST(request: NextRequest) {
       name,
       title,
       description,
-      location: "",
-      education: "",
+      location: "Indonesia",  // Provide default values for required fields
+      education: "Computer Science at University (2024)",
       experience: "2+ years",
-      profileImage: "",
-      backgroundGradient: ""
+      profileImage: "/pp.jpg",
+      backgroundGradient: "from-blue-600 via-purple-600 to-indigo-600",
+      status: "Welcome To My Portfolio"
     };
     
     const existingProfile = await prisma.profile.findFirst();
@@ -93,4 +93,3 @@ export async function POST(request: NextRequest) {
     await prisma.$disconnect();
   }
 }
-
