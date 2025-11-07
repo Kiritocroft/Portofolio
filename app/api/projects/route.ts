@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    let { title, description, tags, imageUrl, order } = body;
+    let { title, description, tags, imageUrl, link, order } = body;
 
     if (!title || !description) {
       return NextResponse.json(
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
         description,
         tags: tags || "",
         imageUrl: imageUrl || "/pim.png",
+        link: link || null,
         order,
       },
     });

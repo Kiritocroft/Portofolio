@@ -5,11 +5,11 @@ export async function GET() {
   try {
     // Test basic database connection
     console.log("Testing database connection...");
-    await prisma.$queryRaw`SELECT 1`;
+    // For MongoDB, we'll just try to count users as a connection test
+    const userCount = await prisma.user.count();
     console.log("Database connection successful");
 
     // Test if User table exists and has data
-    const userCount = await prisma.user.count();
     console.log(`User count: ${userCount}`);
 
     // Test if admin user exists

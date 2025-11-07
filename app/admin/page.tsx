@@ -427,6 +427,7 @@ interface ProjectItem {
   description: string;
   tags: string; // comma separated in DB
   imageUrl: string;
+  link?: string;
 }
 
 interface SkillItem { 
@@ -471,6 +472,7 @@ export default function AdminPage() {
     description: "",
     tags: "",
     imageUrl: "/pim.png",
+    link: "",
   });
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [projectImageMode, setProjectImageMode] = useState<'url' | 'upload'>('url');
@@ -814,7 +816,7 @@ export default function AdminPage() {
       });
       if (!res.ok) throw new Error("Failed to create project");
       setProjMessage("Project created");
-      setProjectForm({ title: "", description: "", tags: "", imageUrl: "/pim.png" });
+      setProjectForm({ title: "", description: "", tags: "", imageUrl: "/pim.png", link: "" });
       setProjectImagePreview("/pim.png");
       await refreshProjects();
     } catch (err: any) {
@@ -826,7 +828,7 @@ export default function AdminPage() {
 
   const startEditProject = (p: ProjectItem) => {
     setEditingProjectId(p.id);
-    setProjectForm({ title: p.title, description: p.description, tags: p.tags, imageUrl: p.imageUrl || "/pim.png" });
+    setProjectForm({ title: p.title, description: p.description, tags: p.tags, imageUrl: p.imageUrl || "/pim.png", link: p.link || "" });
     setProjectImagePreview(p.imageUrl || "/pim.png");
     setProjMessage(null);
     setProjError(null);
@@ -834,7 +836,7 @@ export default function AdminPage() {
 
   const cancelEditProject = () => {
     setEditingProjectId(null);
-    setProjectForm({ title: "", description: "", tags: "", imageUrl: "/pim.png" });
+    setProjectForm({ title: "", description: "", tags: "", imageUrl: "/pim.png", link: "" });
     setProjectImagePreview("/pim.png");
   };
 
@@ -1298,6 +1300,18 @@ export default function AdminPage() {
               name="tags"
               value={projectForm.tags}
               onChange={handleProjectFormChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Link (URL)</label>
+            <input
+              type="text"
+              name="link"
+              value={projectForm.link || ""}
+              onChange={handleProjectFormChange}
+              placeholder="https://example.com/project"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>

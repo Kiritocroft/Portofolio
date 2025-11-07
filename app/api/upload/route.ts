@@ -62,13 +62,14 @@ export async function POST(request: NextRequest) {
 
     // Simpan file ke filesystem
     const buffer = await file.arrayBuffer();
-    await writeFile(filePath, Buffer.from(buffer));
+    await writeFile(filePath, new Uint8Array(buffer));
     console.log("File saved to filesystem:", filePath);
 
     // Test database connection
     console.log("Testing database connection...");
     try {
-      await prisma.$queryRaw`SELECT 1`;
+      // For MongoDB, we'll just try to count users as a connection test
+      await prisma.user.count();
       console.log("Database connection successful");
     } catch (dbError) {
       console.error("Database connection failed:", dbError);
