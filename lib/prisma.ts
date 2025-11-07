@@ -8,7 +8,7 @@ declare global {
 
 // Create DATABASE_URL with connection parameters
 const getDatabaseUrl = () => {
-  const baseUrl = process.env.PRISMA_DATABASE_URL;
+  const baseUrl = process.env.PRISMA_DATABASE_URL || process.env.DATABASE_URL;
   if (!baseUrl) return baseUrl;
   
   // Add connection parameters for better stability
