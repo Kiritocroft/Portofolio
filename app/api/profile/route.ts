@@ -57,15 +57,11 @@ export async function POST(request: NextRequest) {
       description = "",
       location = "",
       status = "",
-      edu_major = "",
-      edu_university = "",
-      edu_graduation_year = null,
+      education = "",
+      experience = "2+ years",
       profileImage = "",
       backgroundGradient = ""
     } = data;
-
-    // Konversi data pendidikan ke format yang sesuai dengan skema
-    const education = `${edu_major}${edu_university ? ` at ${edu_university}` : ''}${edu_graduation_year ? ` (${edu_graduation_year})` : ''}`;
     
     const profileData = {
       name,
@@ -74,7 +70,7 @@ export async function POST(request: NextRequest) {
       location,
       status,
       education,
-      experience: "2+ years", // Default value
+      experience,
       profileImage,
       backgroundGradient
     };
