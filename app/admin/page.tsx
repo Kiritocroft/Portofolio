@@ -412,12 +412,6 @@ interface ProfileData {
   name: string;
   title: string;
   description: string;
-  location?: string;
-  status?: string | null;
-  education?: string;
-  experience?: string;
-  profileImage?: string | null;
-  backgroundGradient?: string | null;
 }
 
 interface ProjectItem {
@@ -449,12 +443,6 @@ export default function AdminPage() {
     name: "",
     title: "",
     description: "",
-    location: "",
-    status: "",
-    education: "",
-    experience: "",
-    profileImage: "",
-    backgroundGradient: "",
   });
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
@@ -1175,61 +1163,6 @@ export default function AdminPage() {
                     value={form.description || ""}
                     onChange={handleChange}
                   ></textarea>
-                </div>
-                <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lokasi</label>
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    value={form.location || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                  <input
-                    type="text"
-                    id="status"
-                    name="status"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    value={form.status || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="education" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pendidikan</label>
-                  <input
-                    type="text"
-                    id="education"
-                    name="education"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    value={form.education || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="experience" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pengalaman</label>
-                  <input
-                    type="text"
-                    id="experience"
-                    name="experience"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    value={form.experience || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="backgroundGradient" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Background Gradient</label>
-                  <input
-                    type="text"
-                    id="backgroundGradient"
-                    name="backgroundGradient"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    value={form.backgroundGradient || ""}
-                    onChange={handleChange}
-                  />
                 </div>
               </div>
             </div>

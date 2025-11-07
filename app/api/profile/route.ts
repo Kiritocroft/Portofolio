@@ -54,25 +54,18 @@ export async function POST(request: NextRequest) {
     const {
       name = "",
       title = "",
-      description = "",
-      location = "",
-      status = "",
-      education = "",
-      experience = "2+ years",
-      profileImage = "",
-      backgroundGradient = ""
+      description = ""
     } = data;
     
     const profileData = {
       name,
       title,
       description,
-      location,
-      status,
-      education,
-      experience,
-      profileImage,
-      backgroundGradient
+      location: "",
+      education: "",
+      experience: "2+ years",
+      profileImage: "",
+      backgroundGradient: ""
     };
     
     const existingProfile = await prisma.profile.findFirst();
