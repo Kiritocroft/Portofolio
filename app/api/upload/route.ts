@@ -68,8 +68,7 @@ export async function POST(request: NextRequest) {
     // Test database connection
     console.log("Testing database connection...");
     try {
-      // For MongoDB, we'll just try to count users as a connection test
-      await prisma.user.count();
+      await prisma.$queryRaw`SELECT 1`;
       console.log("Database connection successful");
     } catch (dbError) {
       console.error("Database connection failed:", dbError);
