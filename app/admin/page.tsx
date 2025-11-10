@@ -437,6 +437,15 @@ interface ExperienceItem {
   icon: string;
 }
 
+interface CertificateItem { 
+  id: string; 
+  title: string; 
+  description: string; 
+  imageUrl: string;
+  issueDate: string;
+  issuer: string;
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const [form, setForm] = useState<ProfileData>({
@@ -486,6 +495,28 @@ export default function AdminPage() {
   const [expLoading, setExpLoading] = useState<boolean>(false);
   const [editingExpId, setEditingExpId] = useState<string | null>(null);
   const [editExpForm, setEditExpForm] = useState<ExperienceItem>({ id: "", title: "", location: "", description: "", date: "", icon: "CgWorkAlt" });
+
+  // Certificates state
+  const [certificates, setCertificates] = useState<CertificateItem[]>([]);
+  const [certForm, setCertForm] = useState<Omit<CertificateItem, "id">>({ 
+    title: "", 
+    description: "", 
+    imageUrl: "", 
+    issueDate: "", 
+    issuer: "" 
+  });
+  const [certMessage, setCertMessage] = useState<string | null>(null);
+  const [certError, setCertError] = useState<string | null>(null);
+  const [certLoading, setCertLoading] = useState<boolean>(false);
+  const [editingCertId, setEditingCertId] = useState<string | null>(null);
+  const [editCertForm, setEditCertForm] = useState<CertificateItem>({ 
+    id: "", 
+    title: "", 
+    description: "", 
+    imageUrl: "", 
+    issueDate: "", 
+    issuer: "" 
+  });
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -651,6 +682,14 @@ export default function AdminPage() {
         if (res.ok) {
           const data = await res.json();
           setExps(data);
+        }
+      } catch {}
+      // Certificates
+      try {
+        const res = await fetch("/api/certificates", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setCertificates(data);
         }
       } catch {}
     };
@@ -991,6 +1030,107 @@ export default function AdminPage() {
       setExpError(err.message || "Failed to add experience");
     } finally {
       setExpLoading(false);
+    }
+  };
+
+  // Certificate functions
+  const handleCertFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCertForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const submitNewCertificate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCertLoading(true);
+    setCertMessage(null);
+    setCertError(null);
+    try {
+      const res = await fetch("/api/certificates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(certForm),
+      });
+      if (!res.ok) throw new Error("Failed to create certificate");
+      setCertMessage("Certificate created successfully");
+      setCertForm({ title: "", description: "", imageUrl: "", issueDate: "", issuer: "" });
+      await refreshCertificates();
+    } catch (err: any) {
+      setCertError(err.message || "Failed to create certificate");
+    } finally {
+      setCertLoading(false);
+    }
+  };
+
+  const deleteCertificate = async (id: string) => {
+    setCertLoading(true);
+    setCertMessage(null);
+    setCertError(null);
+    try {
+      const res = await fetch(`/api/certificates/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete certificate");
+      setCertMessage("Certificate deleted successfully");
+      await refreshCertificates();
+    } catch (err: any) {
+      setCertError(err.message || "Failed to delete certificate");
+    } finally {
+      setCertLoading(false);
+    }
+  };
+
+  const startEditCertificate = (cert: CertificateItem) => {
+    setEditingCertId(cert.id);
+    setEditCertForm({
+      id: cert.id,
+      title: cert.title,
+      description: cert.description,
+      imageUrl: cert.imageUrl,
+      issueDate: cert.issueDate,
+      issuer: cert.issuer,
+    });
+  };
+
+  const cancelEditCertificate = () => {
+    setEditingCertId(null);
+    setEditCertForm({ id: "", title: "", description: "", imageUrl: "", issueDate: "", issuer: "" });
+  };
+
+  const handleEditCertChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditCertForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const submitUpdateCertificate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCertId) return;
+    setCertLoading(true);
+    setCertMessage(null);
+    setCertError(null);
+    try {
+      const res = await fetch(`/api/certificates/${editingCertId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editCertForm),
+      });
+      if (!res.ok) throw new Error("Failed to update certificate");
+      setCertMessage("Certificate updated successfully");
+      cancelEditCertificate();
+      await refreshCertificates();
+    } catch (err: any) {
+      setCertError(err.message || "Failed to update certificate");
+    } finally {
+      setCertLoading(false);
+    }
+  };
+
+  const refreshCertificates = async () => {
+    try {
+      const res = await fetch("/api/certificates", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setCertificates(data);
+      }
+    } catch (err) {
+      console.error("Failed to refresh certificates:", err);
     }
   };
 
@@ -1346,6 +1486,119 @@ export default function AdminPage() {
               </ul>
             </SortableContext>
           </DndContext>
+        </div>
+      </div>
+
+      {/* Certificate Management */}
+      <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">Certificate Management</h3>
+        {certMessage && <div className="mb-4 p-3 rounded-md bg-green-100 text-green-800">{certMessage}</div>}
+        {certError && <div className="mb-4 p-3 rounded-md bg-red-100 text-red-800">{certError}</div>}
+        <form onSubmit={editingCertId ? submitUpdateCertificate : submitNewCertificate} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+              <input
+                type="text"
+                name="title"
+                value={editingCertId ? editCertForm.title : certForm.title}
+                onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Issuer</label>
+              <input
+                type="text"
+                name="issuer"
+                value={editingCertId ? editCertForm.issuer : certForm.issuer}
+                onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+            <textarea
+              name="description"
+              value={editingCertId ? editCertForm.description : certForm.description}
+              onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
+              rows={3}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Issue Date</label>
+              <input
+                type="date"
+                name="issueDate"
+                value={editingCertId ? editCertForm.issueDate : certForm.issueDate}
+                onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image URL</label>
+              <input
+                type="url"
+                name="imageUrl"
+                value={editingCertId ? editCertForm.imageUrl : certForm.imageUrl}
+                onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
+                placeholder="https://example.com/certificate.jpg"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              disabled={certLoading}
+            >
+              {editingCertId ? (certLoading ? "Updating..." : "Update Certificate") : (certLoading ? "Creating..." : "Create Certificate")}
+            </button>
+            {editingCertId && (
+              <button type="button" onClick={cancelEditCertificate} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Cancel</button>
+            )}
+          </div>
+        </form>
+        <div className="mt-8">
+          <h4 className="text-md font-semibold mb-3">Existing Certificates</h4>
+          {certLoading && <p className="text-sm text-gray-500">Loading...</p>}
+          {!certLoading && certificates.length === 0 && (
+            <p className="text-sm text-gray-500">No certificates yet.</p>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {certificates.map((cert) => (
+              <div key={cert.id} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                <div className="flex justify-between items-start mb-2">
+                  <h5 className="font-semibold text-gray-900 dark:text-white">{cert.title}</h5>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => startEditCertificate(cert)}
+                      className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteCertificate(cert.id)}
+                      className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                      disabled={certLoading}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">{cert.description}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Issuer: {cert.issuer}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Date: {new Date(cert.issueDate).toLocaleDateString()}</p>
+                {cert.imageUrl && (
+                  <img src={cert.imageUrl} alt={cert.title} className="mt-2 w-full h-32 object-cover rounded" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
