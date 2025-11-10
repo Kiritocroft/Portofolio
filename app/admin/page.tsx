@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 import {
   DndContext,
   closestCenter,
@@ -517,6 +518,8 @@ export default function AdminPage() {
     issueDate: "", 
     issuer: "" 
   });
+  const [certImageMode, setCertImageMode] = useState<'url' | 'upload'>('url');
+  const [certImagePreview, setCertImagePreview] = useState<string>("");
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -1037,6 +1040,47 @@ export default function AdminPage() {
   const handleCertFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setCertForm((f) => ({ ...f, [name]: value }));
+    if (name === 'imageUrl') {
+      setCertImagePreview(value);
+    }
+  };
+
+  const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCertLoading(true);
+    setCertMessage("Uploading image...");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Image upload failed");
+      }
+
+      const data = await res.json();
+      const imageUrl = data.path;
+
+      setCertImagePreview(imageUrl);
+      if (editingCertId) {
+        setEditCertForm((f) => ({ ...f, imageUrl }));
+      } else {
+        setCertForm((f) => ({ ...f, imageUrl }));
+      }
+      setCertMessage("Image uploaded successfully");
+    } catch (err: any) {
+      setCertError(err.message || "Image upload failed");
+    } finally {
+      setCertLoading(false);
+    }
   };
 
   const submitNewCertificate = async (e: React.FormEvent) => {
@@ -1053,6 +1097,8 @@ export default function AdminPage() {
       if (!res.ok) throw new Error("Failed to create certificate");
       setCertMessage("Certificate created successfully");
       setCertForm({ title: "", description: "", imageUrl: "", issueDate: "", issuer: "" });
+      setCertImagePreview("");
+      setCertImageMode('url');
       await refreshCertificates();
     } catch (err: any) {
       setCertError(err.message || "Failed to create certificate");
@@ -1087,16 +1133,25 @@ export default function AdminPage() {
       issueDate: cert.issueDate,
       issuer: cert.issuer,
     });
+    setCertImagePreview(cert.imageUrl || "");
+    setCertImageMode(cert.imageUrl ? 'url' : 'url');
+    setCertMessage(null);
+    setCertError(null);
   };
 
   const cancelEditCertificate = () => {
     setEditingCertId(null);
     setEditCertForm({ id: "", title: "", description: "", imageUrl: "", issueDate: "", issuer: "" });
+    setCertImagePreview("");
+    setCertImageMode('url');
   };
 
   const handleEditCertChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditCertForm((f) => ({ ...f, [name]: value }));
+    if (name === 'imageUrl') {
+      setCertImagePreview(value);
+    }
   };
 
   const submitUpdateCertificate = async (e: React.FormEvent) => {
@@ -1238,9 +1293,9 @@ export default function AdminPage() {
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
               <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">Profile Picture</h3>
               <div className="flex flex-col items-center space-y-4">
-                <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative">
                   {preview ? (
-                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                    <Image src={preview} alt="Preview" fill className="object-cover" unoptimized />
                   ) : (
                     <svg className="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   )}
@@ -1398,14 +1453,15 @@ export default function AdminPage() {
               {projectImagePreview && (
                 <div className="mt-3">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Preview:</p>
-                  <img
-                    src={projectImagePreview}
-                    alt="Project preview"
-                    className="w-32 h-20 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-                    onError={(e) => {
-                      e.currentTarget.src = "/pim.png";
-                    }}
-                  />
+                  <div className="relative w-32 h-20 rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden">
+                    <Image
+                      src={projectImagePreview || "/pim.png"}
+                      alt="Project preview"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -1539,15 +1595,71 @@ export default function AdminPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image URL</label>
-              <input
-                type="url"
-                name="imageUrl"
-                value={editingCertId ? editCertForm.imageUrl : certForm.imageUrl}
-                onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
-                placeholder="https://example.com/certificate.jpg"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Certificate Image</label>
+              
+              {/* Toggle buttons */}
+              <div className="flex mb-3 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setCertImageMode('url')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    certImageMode === 'url'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  URL Link
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCertImageMode('upload')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    certImageMode === 'upload'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Upload File
+                </button>
+              </div>
+
+              {/* URL Input */}
+              {certImageMode === 'url' && (
+                <input
+                  type="url"
+                  name="imageUrl"
+                  value={editingCertId ? editCertForm.imageUrl : certForm.imageUrl}
+                  onChange={editingCertId ? handleEditCertChange : handleCertFormChange}
+                  placeholder="https://example.com/certificate.jpg"
+                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              )}
+
+              {/* File Upload */}
+              {certImageMode === 'upload' && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCertImageUpload}
+                  className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              )}
+
+              {/* Image Preview */}
+              {certImagePreview && (
+                <div className="mt-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Preview:</p>
+                  <div className="relative w-full max-w-xs h-32 rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden">
+                    <Image
+                      src={certImagePreview}
+                      alt="Certificate preview"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -1594,7 +1706,9 @@ export default function AdminPage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Issuer: {cert.issuer}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Date: {new Date(cert.issueDate).toLocaleDateString()}</p>
                 {cert.imageUrl && (
-                  <img src={cert.imageUrl} alt={cert.title} className="mt-2 w-full h-32 object-cover rounded" />
+                  <div className="relative mt-2 w-full h-32 rounded overflow-hidden">
+                    <Image src={cert.imageUrl} alt={cert.title} fill className="object-cover" unoptimized />
+                  </div>
                 )}
               </div>
             ))}
