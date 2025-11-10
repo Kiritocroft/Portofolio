@@ -2,7 +2,7 @@
 
 > **Modern Portfolio Website** - Built with the latest technology to showcase your work, experience, and certificates professionally.
 
-![Portfolio Preview](https://user-images.githubusercontent.com/portfolio-preview.jpg)
+![Portfolio Preview](https://imgur.com/a/website-COAaqqQ#gcPBtsc) (https://imgur.com/a/website-COAaqqQ#kKL6s9j) (https://imgur.com/a/website-COAaqqQ#gTuajoH) (https://imgur.com/a/website-COAaqqQ#zh5j0br)
 
 ## ✨ Key Features
 
@@ -266,7 +266,7 @@ MIT License - free to use for personal & commercial projects!
 1. 📖 Read the documentation above first
 2. 🔍 Check [Issues](https://github.com/Kiritocroft/Portofolio/issues) on GitHub
 3. 💬 Ask in [Discussions](https://github.com/Kiritocroft/Portofolio/discussions)
-4. 📧 Email: [nabil@example.com](mailto:nabil@example.com)
+4. 📧 Email: [nabil@example.com](mailto:nabilathaillah33@gmail.com)
 
 ---
 
