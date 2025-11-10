@@ -51,24 +51,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buat direktori uploads jika belum ada
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-      console.log("Created uploads directory");
-    }
-
+    // Determine storage method based on environment
+    // In Vercel/serverless: store in database as binary (filesystem is read-only)
+    // In local development: store in public/uploads directory
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+    
     // Generate unique filename
     const timestamp = Date.now();
     const fileExtension = file.name.split('.').pop();
     const uniqueFilename = `${timestamp}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
-    const filePath = join(uploadsDir, uniqueFilename);
-    const publicPath = `/uploads/${uniqueFilename}`;
-
-    // Simpan file ke filesystem
+    
+    // Get file buffer
     const buffer = await file.arrayBuffer();
-    await writeFile(filePath, new Uint8Array(buffer));
-    console.log("File saved to filesystem:", filePath);
+    const fileBuffer = Buffer.from(buffer);
+    
+    let publicPath: string;
+    let fileData: Buffer | null = null;
+
+    if (isVercel) {
+      // Vercel: Store file data in database
+      // Filesystem is read-only in Vercel, so we store the file as binary in database
+      fileData = fileBuffer;
+      // We'll use database ID in the path after saving
+      publicPath = `/api/images/placeholder`; // Placeholder, will use ID after save
+      console.log("Vercel environment: Will store file in database");
+    } else {
+      // Local development: Store file in filesystem
+      const uploadsDir = join(process.cwd(), 'public', 'uploads');
+      
+      try {
+        if (!existsSync(uploadsDir)) {
+          await mkdir(uploadsDir, { recursive: true });
+          console.log("Created uploads directory:", uploadsDir);
+        }
+      } catch (dirError: any) {
+        console.error("Error creating directory:", dirError);
+        return NextResponse.json(
+          { error: "Failed to create upload directory. Please check server configuration." },
+          { status: 500 }
+        );
+      }
+      
+      const filePath = join(uploadsDir, uniqueFilename);
+      await writeFile(filePath, fileBuffer);
+      publicPath = `/uploads/${uniqueFilename}`;
+      console.log("Local environment: File saved to filesystem:", filePath);
+    }
 
     // Test database connection
     console.log("Testing database connection...");
@@ -83,17 +111,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Simpan metadata ke database
-    console.log("Saving file metadata to database...");
+    // Simpan metadata dan data ke database
+    console.log("Saving file to database...");
     const savedImage = await prisma.profileImage.create({
       data: {
         filename: file.name,
         mimetype: file.type,
-        path: publicPath,
+        path: isVercel ? `/api/images/${uniqueFilename}` : publicPath, // Use filename for Vercel, full path for local
         size: file.size,
+        data: fileData, // Store file data if in Vercel, null if local
       },
     });
-    console.log("Image metadata saved successfully:", savedImage.id);
+    
+    // Update publicPath to use database ID for Vercel
+    if (isVercel) {
+      publicPath = `/api/images/${savedImage.id}`;
+      // Update the path in database to use ID
+      await prisma.profileImage.update({
+        where: { id: savedImage.id },
+        data: { path: publicPath },
+      });
+    }
+    
+    console.log("Image saved successfully:", savedImage.id);
 
     // Jika updateProfile=true, update field profileImage di model Profile
     if (updateProfile) {
@@ -113,6 +153,7 @@ export async function POST(request: NextRequest) {
       message: "Upload successful",
       path: publicPath,
       id: savedImage.id,
+      filename: uniqueFilename, // Also return filename for API route access
     });
   } catch (error: any) {
     console.error("Upload error:", error);

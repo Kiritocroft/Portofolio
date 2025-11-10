@@ -50,8 +50,9 @@ model ProfileImage {
   id        String   @id @default(cuid())
   filename  String
   mimetype  String
-  path      String   // Menyimpan path file di filesystem
+  path      String   // Menyimpan path file di filesystem (untuk local) atau API path (untuk Vercel)
   size      Int      // Ukuran file dalam bytes
+  data      Bytes?   // Menyimpan data file sebagai binary (untuk Vercel/serverless)
   createdAt DateTime @default(now())
 }
 
