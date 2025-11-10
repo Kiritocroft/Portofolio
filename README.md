@@ -1,136 +1,279 @@
-# Portfolio Website
+# 🚀 Portfolio Website
 
-A modern portfolio website built with Next.js 15, Prisma, and PostgreSQL.
+> **Modern Portfolio Website** - Built with the latest technology to showcase your work, experience, and certificates professionally.
 
-## Features
+![Portfolio Preview](https://user-images.githubusercontent.com/portfolio-preview.jpg)
 
-- Responsive design with Tailwind CSS
-- Admin dashboard for content management
-- Project showcase with external links
-- Skills and experience sections
-- Dark mode support
-- Drag and drop reordering
-- Authentication with NextAuth.js
+## ✨ Key Features
 
-## Getting Started
+### 🎨 **Modern & Responsive Design**
+- Elegant design with smooth animations
+- Automatic dark mode
+- 100% mobile-friendly
 
-### Prerequisites
+### 🔐 **Admin Dashboard**
+- Secure login with authentication
+- Manage content without coding
+- Drag & drop to reorder content
 
-- Node.js 18+
-- PostgreSQL database
-- Prisma account (for Prisma Accelerate, optional)
+### 📋 **Complete Content Management**
+- ✅ **Projects** - Showcase projects with links
+- ✅ **Skills** - List technical skills
+- ✅ **Experience** - Work history
+- ✅ **Certificates** - Certificates & recognition
+- ✅ **About** - Brief profile
+- ✅ **Contact** - Interactive contact form
 
-### Installation
+### 🎯 **Special Features**
+- 📱 **Certificate Modal** - Click certificate images to view full-size
+- 🔄 **Drag & Drop** - Easily reorder content
+- 📧 **Email Integration** - Contact form goes directly to email
+- 🚀 **Optimal Performance** - Built with Next.js 15
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd portfolio
-   ```
+## 🛠️ Technologies Used
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+<div align="center">
+<br>
 
-3. Set up environment variables (see [.env.example](file:///C:/Users/MSI%20ID/Downloads/portofolio/.env.example) for required variables):
-   ```bash
-   cp .env.example .env
-   ```
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-Latest-1B222D?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 
-4. Run database migrations:
-   ```bash
-   npx prisma db push
-   ```
+</div>
 
-5. Seed the database:
-   ```bash
-   npx prisma db seed
-   ```
+## 🚀 Quick Start (For Beginners)
 
-6. Start the development server:
-   ```bash
-   npm run dev
-   ```
+### 📋 Preparation
 
-## Deployment to Vercel
+**What you need:**
+- ✅ [Node.js](https://nodejs.org/) (version 18 or newer)
+- ✅ [Git](https://git-scm.com/) to clone repository
+- ✅ [PostgreSQL](https://www.postgresql.org/) (database)
+- ✅ [VS Code](https://code.visualstudio.com/) (recommended editor)
 
-1. Push your code to a Git repository
-2. Connect your repository to Vercel
-3. Set the environment variables in Vercel project settings:
-   - `DATABASE_URL` - Your PostgreSQL connection string
-   - `PRISMA_DATABASE_URL` - Your Prisma Accelerate URL (if using)
-   - `NEXTAUTH_SECRET` - A random string for NextAuth
-   - `NEXTAUTH_URL` - Your deployed URL
-   - `ADMIN_EMAIL` - Admin email for login
-   - `ADMIN_PASSWORD` - Admin password
-   - `RESEND_API_KEY` - Resend API key (if using email functionality)
+### 🎯 Installation Steps
 
-4. Add the build command in Vercel settings:
-   ```bash
-   prisma generate && next build
-   ```
+#### 1. Clone Repository
+```bash
+git clone https://github.com/Kiritocroft/Portofolio.git
+cd Portofolio
+```
 
-## Environment Variables
+#### 2. Install Dependencies
+```bash
+npm install
+```
 
-See [DEPLOYMENT_GUIDE.md](file:///C:/Users/MSI%20ID/Downloads/portofolio/DEPLOYMENT_GUIDE.md) for detailed information about environment variables.
+#### 3. Setup Database
 
-## API Routes
+**Option A: Local PostgreSQL**
+- Install PostgreSQL on your computer
+- Create a new database (example: `portfolio_db`)
 
-- `/api/health` - Health check endpoint
-- `/api/test-db` - Database connection test
-- `/api/test-auth` - Authentication test
-- `/api/profile` - Profile management
-- `/api/projects` - Project management
-- `/api/skills` - Skills management
-- `/api/experiences` - Experience management
-- `/api/about` - About content management
-- `/api/upload` - File upload
-- `/api/create-admin` - Admin user creation (protected)
+**Option B: Online Database (Recommended for Beginners)**
+- Use [Supabase](https://supabase.com/) (Free)
+- Or [Railway](https://railway.app/) (Free tier)
 
-## Troubleshooting
+#### 4. Setup Environment
 
-### "Gagal menyimpan" (Failed to save) Error
+**Copy environment file:**
+```bash
+cp .env.example .env
+```
 
-This usually indicates:
+**Fill the `.env` file with your data:**
+```env
+# Database (REQUIRED)
+DATABASE_URL="postgresql://username:password@localhost:5432/portfolio_db"
 
-1. Database connection issues
-2. Missing environment variables
-3. Authentication problems
-4. Required fields not being provided
+# NextAuth (For Admin Login)
+NEXTAUTH_SECRET="fill-with-long-random-string"
+NEXTAUTH_URL="http://localhost:3000"
 
-To debug:
+# Admin Account (REQUIRED)
+ADMIN_EMAIL="admin@email.com"
+ADMIN_PASSWORD="your-admin-password"
 
-1. Check the browser console for network errors
-2. Check Vercel logs for server-side errors
-3. Test database connectivity with `/api/test-db`
-4. Test authentication with `/api/test-auth`
+# Email (Optional - for contact form)
+RESEND_API_KEY="your-api-key-from-resend.com"
+```
 
-### Database Issues
+#### 5. Setup Database Schema
+```bash
+# Generate Prisma client
+npx prisma generate
 
-1. Ensure your database URL is correctly formatted
-2. If using Prisma Accelerate, make sure both `DATABASE_URL` and `PRISMA_DATABASE_URL` are set
-3. Check that your database is accessible from Vercel
+# Push schema to database
+npx prisma db push
 
-## Development
+# Seed initial data
+npx prisma db seed
+```
 
-### Adding New Features
-
-1. Update the Prisma schema in [prisma/schema.prisma](file:///C:/Users/MSI%20ID/Downloads/portofolio/prisma/schema.prisma)
-2. Run `npx prisma generate` to update the Prisma client
-3. Run `npx prisma db push` to update the database schema
-4. Implement the API routes
-5. Update the admin dashboard UI
-
-### Testing
-
-Run the development server and test all functionality:
+#### 6. Run Development Server
 ```bash
 npm run dev
 ```
 
-## Learn More
+**Open browser:** [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [NextAuth.js Documentation](https://next-auth.js.org/)
+## 🎮 How to Use
+
+### 🌐 Visitor Mode
+- Open your website
+- Explore all sections (Home, About, Projects, Skills, Experience, Certificates, Contact)
+- Click certificate images to view in full size
+
+### 🔐 Admin Mode (To Manage Content)
+
+**Login to Admin Panel:**
+1. Open [http://localhost:3000/admin](http://localhost:3000/admin)
+2. Enter admin email & password (set in `.env`)
+3. You'll enter the admin dashboard
+
+**Managing Content:**
+- **Projects**: Add, edit, delete projects
+- **Skills**: Manage skills list
+- **Experience**: Update work history
+- **Certificates**: Upload new certificates
+- **About**: Update brief profile
+
+**Tips for Reordering Content:**
+- Use drag & drop to reorder
+- Click "Reorder" button to save order
+
+## 🚀 Deploy to Internet (Free)
+
+### Option 1: Vercel (Recommended)
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Portfolio ready to deploy"
+   git push origin main
+   ```
+
+2. **Deploy on Vercel**
+   - Open [vercel.com](https://vercel.com)
+   - Login with GitHub
+   - Import your repository
+   - Set environment variables
+   - Deploy!
+
+### Option 2: Netlify
+- Open [netlify.com](https://netlify.com)
+- Connect to GitHub
+- Auto deploy every push
+
+## 📚 Complete Guide
+
+### 🔧 Environment Variables Detail
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/dbname` |
+| `NEXTAUTH_SECRET` | ✅ | Random string for auth | `your-super-secret-key-here` |
+| `NEXTAUTH_URL` | ✅ | Your website URL | `https://yourdomain.com` |
+| `ADMIN_EMAIL` | ✅ | Admin login email | `admin@yourdomain.com` |
+| `ADMIN_PASSWORD` | ✅ | Admin password | `strongpassword123` |
+| `RESEND_API_KEY` | ❌ | For contact form | `re_xxxxxxxxxxxx` |
+
+### 📖 API Routes
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/profile` | GET/POST | User profile |
+| `/api/projects` | GET/POST/PUT/DELETE | Project management |
+| `/api/skills` | GET/POST/PUT/DELETE | Skills management |
+| `/api/experiences` | GET/POST/PUT/DELETE | Experience management |
+| `/api/certificates` | GET/POST/PUT/DELETE | Certificate management |
+| `/api/about` | GET/POST | About content |
+| `/api/auth/*` | POST | Authentication |
+| `/api/upload` | POST | Image upload |
+
+## 🐛 Troubleshooting (Common Issues)
+
+### ❌ "Database connection failed"
+**Solution:**
+1. Check `DATABASE_URL` in `.env`
+2. Make sure PostgreSQL is running
+3. Test connection: `npx prisma db push`
+
+### ❌ "Failed to save content"
+**Solution:**
+1. Check browser console (F12)
+2. Check terminal for error details
+3. Test auth: `curl http://localhost:3000/api/test-auth`
+4. Test DB: `curl http://localhost:3000/api/test-db`
+
+### ❌ "Can't login to admin"
+**Solution:**
+1. Check `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env`
+2. Restart server after changing `.env`
+3. Clear browser cache
+
+### ❌ "Images not loading"
+**Solution:**
+1. Check `public/uploads` folder exists
+2. Check folder permissions
+3. Check upload size limit
+
+## 🎨 Customization
+
+### Change Theme Colors
+Edit file `tailwind.config.js`:
+```javascript
+colors: {
+  primary: {
+    50: '#your-color-50',
+    // ... change colors as you like
+  }
+}
+```
+
+### Change Font
+Edit `app/layout.tsx`:
+```typescript
+const font = Inter({ 
+  subsets: ['latin'],
+  // replace with your favorite font
+})
+```
+
+### Add New Section
+1. Create new component in `components/`
+2. Add to `app/page.tsx`
+3. Update navigation in `lib/data.ts`
+
+## 🤝 Contributing
+
+Want to contribute? **Great!**
+
+1. Fork this repository
+2. Create your feature branch (`git checkout -b amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+MIT License - free to use for personal & commercial projects!
+
+## 🆘 Need Help?
+
+**How to get help:**
+1. 📖 Read the documentation above first
+2. 🔍 Check [Issues](https://github.com/Kiritocroft/Portofolio/issues) on GitHub
+3. 💬 Ask in [Discussions](https://github.com/Kiritocroft/Portofolio/discussions)
+4. 📧 Email: [nabil@example.com](mailto:nabil@example.com)
+
+---
+
+<div align="center">
+
+**⭐ Give a star if this helps!**
+
+**Made with ❤️ by Muhammad Nabil Athaillah**
+
+</div>
