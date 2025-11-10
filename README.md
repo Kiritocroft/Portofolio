@@ -2,10 +2,10 @@
 
 > **Modern Portfolio Website** - Built with the latest technology to showcase your work, experience, and certificates professionally.
 
-![Portfolio Preview 1](https://imgur.com/a/website-COAaqqQ#gcPBtsc)
-![Portfolio Preview 2](https://imgur.com/a/website-COAaqqQ#kKL6s9j)
-![Portfolio Preview 3](https://imgur.com/a/website-COAaqqQ#gTuajoH)
-![Portfolio Preview 4](https://imgur.com/a/website-COAaqqQ#zh5j0br)
+![Portfolio Preview 1](https://i.imgur.com/gcPBtsc.png)
+![Portfolio Preview 2](https://i.imgur.com/kKL6s9j.png)
+![Portfolio Preview 3](https://i.imgur.com/gTuajoH.png)
+![Portfolio Preview 4](https://i.imgur.com/zh5j0br.png)
 
 ## ✨ Key Features
 
