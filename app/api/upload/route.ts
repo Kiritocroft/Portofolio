@@ -29,13 +29,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validasi ukuran file (maksimal 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Validasi ukuran file (maksimal 4MB untuk Vercel compatibility)
+    // Vercel has 4.5MB body size limit for serverless functions
+    const maxSize = 4 * 1024 * 1024; // 4MB (safety margin for Vercel's 4.5MB limit)
     if (file.size > maxSize) {
       console.log(`File too large: ${file.size} bytes`);
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       return NextResponse.json(
-        { error: `File size too large (${fileSizeMB}MB). Maximum 10MB allowed. Please compress the image or use a smaller file.` },
+        { error: `File size too large (${fileSizeMB}MB). Maximum 4MB allowed. The image should be compressed automatically, but if this error persists, please use a smaller file.` },
         { status: 400 }
       );
     }
@@ -113,10 +114,11 @@ export async function POST(request: NextRequest) {
       path: publicPath,
       id: savedImage.id,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error:", error);
+    const errorMessage = error?.message || error?.toString() || "Failed to upload file";
     return NextResponse.json(
-      { error: "Failed to upload file" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

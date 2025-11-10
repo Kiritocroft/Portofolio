@@ -716,10 +716,19 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setMessage(null);
+
     // Validate file size (client-side check)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       setMessage(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed.`);
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage(`Invalid file type. Only images (JPEG, PNG, GIF, WebP) are allowed.`);
       return;
     }
 
@@ -729,33 +738,55 @@ export default function AdminPage() {
     try {
       let fileToUpload = file;
 
-      // Compress image if it's larger than 2MB
-      if (needsCompression(file, 2)) {
-        setMessage("Compressing image...");
-        const compressedBlob = await compressImage(file, {
-          maxWidth: 1920,
-          maxHeight: 1920,
-          quality: 0.8,
-          maxSizeMB: 2,
-        });
-        fileToUpload = new File([compressedBlob], file.name, {
-          type: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
-          lastModified: Date.now(),
-        });
-        setMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+      // Compress image if it's larger than 1MB (to ensure it's under Vercel's 4.5MB limit)
+      if (needsCompression(file, 1)) {
+        try {
+          setMessage("Compressing image...");
+          const compressedBlob = await compressImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.75,
+            maxSizeMB: 1.5, // Target 1.5MB to stay well under 4.5MB limit
+          });
+          
+          // Determine MIME type - always use jpeg for compressed images
+          const mimeType = 'image/jpeg';
+          const fileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+          
+          fileToUpload = new File([compressedBlob], fileName, {
+            type: mimeType,
+            lastModified: Date.now(),
+          });
+          
+          setMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+        } catch (compressError) {
+          console.error('Compression error:', compressError);
+          // If compression fails, try uploading original file (if under 10MB)
+          setMessage("Compression failed, uploading original file...");
+          fileToUpload = file;
+        }
       }
 
       const formData = new FormData();
       formData.append("file", fileToUpload);
 
+      setMessage("Uploading image...");
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Image upload failed");
+        let errorMessage = "Image upload failed";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If response is not JSON, try to get text
+          const text = await res.text();
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
@@ -765,7 +796,9 @@ export default function AdminPage() {
       setForm((f) => ({ ...f, profileImage: imageUrl }));
       setMessage("Image uploaded successfully!");
     } catch (err: any) {
-      setMessage(err.message || "An error occurred during upload.");
+      console.error('Upload error:', err);
+      const errorMessage = err.message || "An error occurred during upload. Please check file size and try again.";
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -814,10 +847,21 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset messages
+    setProjError(null);
+    setProjMessage(null);
+
     // Validate file size (client-side check)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       setProjError(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed.`);
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setProjError(`Invalid file type. Only images (JPEG, PNG, GIF, WebP) are allowed.`);
       return;
     }
 
@@ -827,33 +871,55 @@ export default function AdminPage() {
     try {
       let fileToUpload = file;
 
-      // Compress image if it's larger than 2MB
-      if (needsCompression(file, 2)) {
-        setProjMessage("Compressing image...");
-        const compressedBlob = await compressImage(file, {
-          maxWidth: 1920,
-          maxHeight: 1920,
-          quality: 0.8,
-          maxSizeMB: 2,
-        });
-        fileToUpload = new File([compressedBlob], file.name, {
-          type: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
-          lastModified: Date.now(),
-        });
-        setProjMessage(`Image compressed. Uploading...`);
+      // Compress image if it's larger than 1MB (to ensure it's under Vercel's 4.5MB limit)
+      if (needsCompression(file, 1)) {
+        try {
+          setProjMessage("Compressing image...");
+          const compressedBlob = await compressImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.75,
+            maxSizeMB: 1.5, // Target 1.5MB to stay well under 4.5MB limit
+          });
+          
+          // Determine MIME type - always use jpeg for compressed images
+          const mimeType = 'image/jpeg';
+          const fileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+          
+          fileToUpload = new File([compressedBlob], fileName, {
+            type: mimeType,
+            lastModified: Date.now(),
+          });
+          
+          setProjMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+        } catch (compressError) {
+          console.error('Compression error:', compressError);
+          // If compression fails, try uploading original file (if under 10MB)
+          setProjMessage("Compression failed, uploading original file...");
+          fileToUpload = file;
+        }
       }
 
       const formData = new FormData();
       formData.append("file", fileToUpload);
 
+      setProjMessage("Uploading image...");
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Image upload failed");
+        let errorMessage = "Image upload failed";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If response is not JSON, try to get text
+          const text = await res.text();
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
@@ -862,8 +928,12 @@ export default function AdminPage() {
       setProjectImagePreview(imageUrl);
       setProjectForm((pf) => ({ ...pf, imageUrl }));
       setProjMessage("Image uploaded successfully");
+      setProjError(null);
     } catch (err: any) {
-      setProjError(err.message || "Image upload failed");
+      console.error('Upload error:', err);
+      const errorMessage = err.message || "Image upload failed. Please check file size and try again.";
+      setProjError(errorMessage);
+      setProjMessage(null);
     } finally {
       setProjLoading(false);
     }
@@ -1100,10 +1170,22 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset messages
+    setCertError(null);
+    setCertMessage(null);
+
     // Validate file size (client-side check)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Note: Vercel has 4.5MB body size limit, so we compress files > 1MB
+    const maxSize = 10 * 1024 * 1024; // 10MB initial limit (will be compressed if > 1MB)
     if (file.size > maxSize) {
-      setCertError(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed.`);
+      setCertError(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed. Files larger than 1MB will be automatically compressed.`);
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setCertError(`Invalid file type. Only images (JPEG, PNG, GIF, WebP) are allowed.`);
       return;
     }
 
@@ -1113,33 +1195,55 @@ export default function AdminPage() {
     try {
       let fileToUpload = file;
 
-      // Compress image if it's larger than 2MB
-      if (needsCompression(file, 2)) {
-        setCertMessage("Compressing image...");
-        const compressedBlob = await compressImage(file, {
-          maxWidth: 1920,
-          maxHeight: 1920,
-          quality: 0.8,
-          maxSizeMB: 2,
-        });
-        fileToUpload = new File([compressedBlob], file.name, {
-          type: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
-          lastModified: Date.now(),
-        });
-        setCertMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+      // Compress image if it's larger than 1MB (to ensure it's under Vercel's 4.5MB limit)
+      if (needsCompression(file, 1)) {
+        try {
+          setCertMessage("Compressing image...");
+          const compressedBlob = await compressImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.75,
+            maxSizeMB: 1.5, // Target 1.5MB to stay well under 4.5MB limit
+          });
+          
+          // Determine MIME type - always use jpeg for compressed images
+          const mimeType = 'image/jpeg';
+          const fileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+          
+          fileToUpload = new File([compressedBlob], fileName, {
+            type: mimeType,
+            lastModified: Date.now(),
+          });
+          
+          setCertMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+        } catch (compressError) {
+          console.error('Compression error:', compressError);
+          // If compression fails, try uploading original file (if under 10MB)
+          setCertMessage("Compression failed, uploading original file...");
+          fileToUpload = file;
+        }
       }
 
       const formData = new FormData();
       formData.append("file", fileToUpload);
 
+      setCertMessage("Uploading image...");
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Image upload failed");
+        let errorMessage = "Image upload failed";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If response is not JSON, try to get text
+          const text = await res.text();
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
@@ -1152,8 +1256,12 @@ export default function AdminPage() {
         setCertForm((f) => ({ ...f, imageUrl }));
       }
       setCertMessage("Image uploaded successfully");
+      setCertError(null);
     } catch (err: any) {
-      setCertError(err.message || "Image upload failed");
+      console.error('Upload error:', err);
+      const errorMessage = err.message || "Image upload failed. Please check file size and try again.";
+      setCertError(errorMessage);
+      setCertMessage(null);
     } finally {
       setCertLoading(false);
     }

@@ -111,7 +111,7 @@ export async function compressImage(
  * @param maxSizeMB - Maximum size in MB before compression is needed
  * @returns True if compression is needed
  */
-export function needsCompression(file: File, maxSizeMB: number = 2): boolean {
+export function needsCompression(file: File, maxSizeMB: number = 1): boolean {
   const sizeMB = file.size / (1024 * 1024);
   return sizeMB > maxSizeMB;
 }
