@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import { compressImage, needsCompression, formatFileSize } from "@/lib/image-compress";
 import {
   DndContext,
   closestCenter,
@@ -715,13 +716,38 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setLoading(true);
-    setMessage("Uploading image...");
+    // Validate file size (client-side check)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setMessage(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed.`);
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    setLoading(true);
+    setMessage("Processing image...");
 
     try {
+      let fileToUpload = file;
+
+      // Compress image if it's larger than 2MB
+      if (needsCompression(file, 2)) {
+        setMessage("Compressing image...");
+        const compressedBlob = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 0.8,
+          maxSizeMB: 2,
+        });
+        fileToUpload = new File([compressedBlob], file.name, {
+          type: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
+          lastModified: Date.now(),
+        });
+        setMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileToUpload);
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -788,13 +814,38 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setProjLoading(true);
-    setProjMessage("Uploading image...");
+    // Validate file size (client-side check)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setProjError(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed.`);
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    setProjLoading(true);
+    setProjMessage("Processing image...");
 
     try {
+      let fileToUpload = file;
+
+      // Compress image if it's larger than 2MB
+      if (needsCompression(file, 2)) {
+        setProjMessage("Compressing image...");
+        const compressedBlob = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 0.8,
+          maxSizeMB: 2,
+        });
+        fileToUpload = new File([compressedBlob], file.name, {
+          type: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
+          lastModified: Date.now(),
+        });
+        setProjMessage(`Image compressed. Uploading...`);
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileToUpload);
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -1049,13 +1100,38 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setCertLoading(true);
-    setCertMessage("Uploading image...");
+    // Validate file size (client-side check)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setCertError(`File too large (${formatFileSize(file.size)}). Maximum 10MB allowed.`);
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    setCertLoading(true);
+    setCertMessage("Processing image...");
 
     try {
+      let fileToUpload = file;
+
+      // Compress image if it's larger than 2MB
+      if (needsCompression(file, 2)) {
+        setCertMessage("Compressing image...");
+        const compressedBlob = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 0.8,
+          maxSizeMB: 2,
+        });
+        fileToUpload = new File([compressedBlob], file.name, {
+          type: file.type.startsWith('image/') ? 'image/jpeg' : file.type,
+          lastModified: Date.now(),
+        });
+        setCertMessage(`Image compressed from ${formatFileSize(file.size)} to ${formatFileSize(fileToUpload.size)}. Uploading...`);
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileToUpload);
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,

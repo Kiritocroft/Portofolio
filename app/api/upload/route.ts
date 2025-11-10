@@ -4,6 +4,9 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
 
+// Set max duration for this route (30 seconds for large file uploads)
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   console.log("Upload request received");
   try {
@@ -26,12 +29,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validasi ukuran file (maksimal 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validasi ukuran file (maksimal 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       console.log(`File too large: ${file.size} bytes`);
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       return NextResponse.json(
-        { error: "File size too large. Maximum 5MB allowed." },
+        { error: `File size too large (${fileSizeMB}MB). Maximum 10MB allowed. Please compress the image or use a smaller file.` },
         { status: 400 }
       );
     }
